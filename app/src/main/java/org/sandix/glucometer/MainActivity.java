@@ -53,13 +53,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMessage = (TextView) findViewById(R.id.message);
         getInfoBtn = (Button) findViewById(R.id.get_info);
         getInfoBtn.setOnClickListener(this);
+        PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+
 
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if(action.equals(ACTION_USB_PERMISSION)){
+                if(!mUsbManager.hasPermission(usbDevice)){
+                //if(action.equals(ACTION_USB_PERMISSION)){
 
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, new Intent(ACTION_USB_PERMISSION), 0);
                     mUsbManager.requestPermission(usbDevice, pendingIntent);
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
         };
+        registerReceiver(broadcastReceiver, filter);
         IntentFilter intentFilter = new IntentFilter("android.hardware.usb.action.USB_DEVICE_ATTACHED");
         IntentFilter intentFilter1 = new IntentFilter("android.hardware.usb.action.USB_DEVICE_DETACHED");
         registerReceiver(broadcastReceiver,intentFilter);
@@ -142,17 +147,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(tmpEndpoint.getDirection() == UsbConstants.USB_DIR_IN){
                 mUsbEndPointIn = tmpEndpoint;
             }
-            if(tmpEndpoint.getDirection() == UsbConstants.USB_DIR_OUT){
+            if(tmpEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) {
                 mUsbEndPointOut = tmpEndpoint;
             }
         }
 
         mUsbDeviceConnection = mUsbManager.openDevice(usbDevice);
         mMessage.setText("Endpoint IN Direction is: " + mUsbEndPointIn.getDirection() + ", EndPoint OUT Direction is:" + mUsbEndPointOut.getDirection());
-        mUsbDeviceConnection.claimInterface(mUsbInterface, true);
-        byte[] b = {0x02,0x12,0x00,0x05,0x0B,0x02,0x00,0x00,0x00,0x00,(byte)0x84,0x6A,(byte)0xE8,0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
-        writeData(b,b.length);
-        readData(bytes);
+       // mUsbDeviceConnection.claimInterface(mUsbInterface, true);
+        byte[] getSerialNum = {0x02,0x12,0x00,0x05,0x0B, 0x02,0x00,0x00,0x00, 0x00, (byte) 0x84, 0x6A, (byte) 0xE8, 0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
+        //byte[] getSerialNum = "mem".getBytes();
+        UsbTreadTx treadTx = new UsbTreadTx(mUsbDeviceConnection,mUsbEndPointIn,this);
+        treadTx.start();
+        writeData(getSerialNum, getSerialNum.length);
+       // readData(bytes);
 
 
 
