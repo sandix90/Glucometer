@@ -23,6 +23,8 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -57,43 +59,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMessage = (TextView) findViewById(R.id.message);
         getInfoBtn = (Button) findViewById(R.id.get_info);
         getInfoBtn.setOnClickListener(this);
-        PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+//        PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+//        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+//        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+//        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+//        filter.addAction(UsbManager.EXTRA_PERMISSION_GRANTED);
+//        filter.addAction(ACTION_USB_PERMISSION);
+        //registerReceiver(MyReciever.class,filter);
 
 
-        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if(!mUsbManager.hasPermission(usbDevice)){
-                //if(action.equals(ACTION_USB_PERMISSION)){
-
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-                    mUsbManager.requestPermission(usbDevice, pendingIntent);
-                }
-
-
-                if(mUsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)){
-                    mMessage.setText("Device ID: "+usbDevice.getVendorId() + " successfully disconnected");
-                    isConnected=false;
-                    return;
-                }
-
-                if(mUsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)){
-                    mMessage.setText("Device ID: "+usbDevice.getVendorId() + " successfully connected");
-                    isConnected=true;
-                    return;
-                }
-                //message.setText(intent.toString());
-            }
-
-        };
-        registerReceiver(broadcastReceiver, filter);
-        IntentFilter intentFilter = new IntentFilter("android.hardware.usb.action.USB_DEVICE_ATTACHED");
-        IntentFilter intentFilter1 = new IntentFilter("android.hardware.usb.action.USB_DEVICE_DETACHED");
-        registerReceiver(broadcastReceiver,intentFilter);
-        registerReceiver(broadcastReceiver,intentFilter1);
+//        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                String action = intent.getAction();
+//                usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+//                if(!mUsbManager.hasPermission(usbDevice)){
+//                //if(action.equals(ACTION_USB_PERMISSION)){
+//
+//                    PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+//                    mUsbManager.requestPermission(usbDevice, pendingIntent);
+//                }
+//
+//
+//                if(mUsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)){
+//                    mMessage.setText("Device ID: "+usbDevice.getVendorId() + " successfully disconnected");
+//                    isConnected=false;
+//                    return;
+//                }
+//
+//                if(mUsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)){
+//                    mMessage.setText("Device ID: "+usbDevice.getVendorId() + " successfully connected");
+//                    isConnected=true;
+//                    return;
+//                }
+//                //message.setText(intent.toString());
+//            }
+//
+//        };
+      //  registerReceiver(broadcastReceiver, filter);
+       // IntentFilter intentFilter = new IntentFilter("android.hardware.usb.action.USB_DEVICE_ATTACHED");
+        //IntentFilter intentFilter1 = new IntentFilter("android.hardware.usb.action.USB_DEVICE_DETACHED");
+        //registerReceiver(broadcastReceiver,intentFilter);
+        //registerReceiver(broadcastReceiver,intentFilter1);
 
         //findDevice();
     }
@@ -132,19 +139,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tmp();
                 break;
             case R.id.get_info:
-                if(isConnected){
-                    communicate();
-                }
-                else
-                {
-                    Toast.makeText(MainActivity.this, "No connected glucometer found", Toast.LENGTH_SHORT).show();
-                }
+//                if(isConnected){
+//                    communicate();
+//                }
+//                else
+//                {
+//                    Toast.makeText(MainActivity.this, "No connected glucometer found", Toast.LENGTH_SHORT).show();
+//                }
+                communicate();
                 break;
         }
 
     }
 
     private void communicate() {
+        HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
+        Iterator<UsbDevice> iterator = deviceList.values().iterator();
+        while(iterator.hasNext()){
+            usbDevice = iterator.next();
+        }
         mUsbInterface = usbDevice.getInterface(0);
 
         for(int nEp=0; nEp<mUsbInterface.getEndpointCount();nEp++){
@@ -158,6 +171,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         mUsbDeviceConnection = mUsbManager.openDevice(usbDevice);
+        if(!mUsbManager.hasPermission(usbDevice)){
+            mMessage.setText("USB Permission required");
+            return;
+        }
         mUsbDeviceConnection.claimInterface(mUsbInterface, true);
         //mMessage.setText("Endpoint IN Direction is: " + mUsbEndPointIn.getDirection() + ", EndPoint OUT Direction is:" + mUsbEndPointOut.getDirection());
        // mUsbDeviceConnection.claimInterface(mUsbInterface, true);
@@ -168,9 +185,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mMessage.setText("num:" +num);
         }
 
+        String serial = mUsbDeviceConnection.getSerial();
 
         byte[] buf = new byte[mUsbEndPointIn.getMaxPacketSize()];
-        int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length,10);
+        int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length,0);
         //mUsbDeviceConnection.controlTransfer(UsbConstants.USB_DIR_OUT)
         if(recv_num>0){
 
