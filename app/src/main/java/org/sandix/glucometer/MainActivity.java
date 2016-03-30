@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         byte[] buf = new byte[mUsbEndPointIn.getMaxPacketSize()];
         int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length,10);
+        //mUsbDeviceConnection.controlTransfer(UsbConstants.USB_DIR_OUT)
         if(recv_num>0){
 
         }
