@@ -36,10 +36,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     UsbEndpoint mUsbEndPointOut, mUsbEndPointIn;
     UsbInterface mUsbInterface;
     UsbDeviceConnection mUsbDeviceConnection;
+
     private byte[] bytes;
     private static int TIMEOUT = 0;
     private static final String ACTION_USB_PERMISSION =
             "org.sandix.glucometer.USB_PERMISSION";
+    private static final String HEXES = "0123456789ABCDEF";
+    private static final String HEX_INDICATOR = "0x";
+    private static final String SPACE = " ";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mMessage.setText(e.getMessage().toString());
         }
 
+
     }
 
     @Override
@@ -153,17 +158,84 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         mUsbDeviceConnection = mUsbManager.openDevice(usbDevice);
-        mMessage.setText("Endpoint IN Direction is: " + mUsbEndPointIn.getDirection() + ", EndPoint OUT Direction is:" + mUsbEndPointOut.getDirection());
+        mUsbDeviceConnection.claimInterface(mUsbInterface, true);
+        //mMessage.setText("Endpoint IN Direction is: " + mUsbEndPointIn.getDirection() + ", EndPoint OUT Direction is:" + mUsbEndPointOut.getDirection());
        // mUsbDeviceConnection.claimInterface(mUsbInterface, true);
-        byte[] getSerialNum = {0x02,0x12,0x00,0x05,0x0B, 0x02,0x00,0x00,0x00, 0x00, (byte) 0x84, 0x6A, (byte) 0xE8, 0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
+        //byte[] getSerialNum = {0x02};
+        byte[] getSerialNum = {0x02,0x09,0x00,0x05,0x0D,0x02,0x03,(byte)0xDA,0x71};
+        int num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointOut, getSerialNum,getSerialNum.length,10);
+        if(num>0){
+            mMessage.setText("num:" +num);
+        }
+
+
+        byte[] buf = new byte[mUsbEndPointIn.getMaxPacketSize()];
+        int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length,10);
+        if(recv_num>0){
+
+        }
+
+
+
+        //int num = mUsbDeviceConnection.controlTransfer(UsbConstants.USB_DIR_OUT,0,0,0, getSerialNum, getSerialNum.length,0);
+
         //byte[] getSerialNum = "mem".getBytes();
-        UsbTreadTx treadTx = new UsbTreadTx(mUsbDeviceConnection,mUsbEndPointIn,this);
-        treadTx.start();
-        writeData(getSerialNum, getSerialNum.length);
+        //UsbTreadTx treadTx = new UsbTreadTx(mUsbDeviceConnection,mUsbEndPointIn,this);
+        //treadTx.start();
+//        mMessage.setText("control Tr: "+ writeData(getSerialNum, getSerialNum.length));
+//
+//        byte[] buffer = new byte[64];
+//        mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buffer, mUsbEndPointIn.getMaxPacketSize(), 0);
+//        Toast.makeText(this,"Answer: "+hexToString(buffer),Toast.LENGTH_LONG).show();
+//
+//        byte[] buffer1 = new byte[64];
+//        mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buffer1, mUsbEndPointIn.getMaxPacketSize(), 0);
+//        Toast.makeText(this,"Answer: "+hexToString(buffer1),Toast.LENGTH_LONG).show();
+//
+//        byte[] buffer2 = new byte[64];
+//        mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buffer2, mUsbEndPointIn.getMaxPacketSize(), 0);
+//        Toast.makeText(this,"Answer: "+hexToString(buffer2),Toast.LENGTH_LONG).show();
        // readData(bytes);
 
 
 
+    }
+
+    public static String hexToString(byte[] data)
+    {
+        if(data != null)
+        {
+            StringBuilder hex = new StringBuilder(2*data.length);
+            for(int i=0;i<=data.length-1;i++)
+            {
+                byte dataAtIndex = data[i];
+                hex.append(HEX_INDICATOR);
+                hex.append(HEXES.charAt((dataAtIndex & 0xF0) >> 4))
+                        .append(HEXES.charAt((dataAtIndex & 0x0F)));
+                hex.append(SPACE);
+            }
+            return hex.toString();
+        }else
+        {
+            return null;
+        }
+    }
+
+    public static byte[] stringTobytes(String hexString)
+    {
+        String stringProcessed = hexString.trim().replaceAll("0x", "");
+        stringProcessed = stringProcessed.replaceAll("\\s+","");
+        byte[] data = new byte[stringProcessed.length()/2];
+        int i = 0;
+        int j = 0;
+        while(i <= stringProcessed.length()-1)
+        {
+            byte character = (byte) Integer.parseInt(stringProcessed.substring(i, i+2), 16);
+            data[j] = character;
+            j++;
+            i += 2;
+        }
+        return data;
     }
 
     private int readData(byte[] data){
