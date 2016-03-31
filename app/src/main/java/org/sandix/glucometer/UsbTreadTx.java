@@ -31,9 +31,10 @@ public class UsbTreadTx extends Thread {
     @Override
     public void run() {
         super.run();
-        byte[] buffer = new byte[64];
-        txConnection.bulkTransfer(txEndPoint,buffer,txEndPoint.getMaxPacketSize(),0);
-        Toast.makeText(context,"Answer: "+buffer.toString(),Toast.LENGTH_LONG).show();
+        byte[] buf = new byte[txEndPoint.getMaxPacketSize()];
+        int recv_num = txConnection.bulkTransfer(txEndPoint, buf, buf.length,0);
+        //Toast.makeText(("recv_num: " + recv_num + " answ:" + buf);
+        Toast.makeText(context, "recv_num: " + recv_num + " answ:" + buf, Toast.LENGTH_LONG).show();
 
     }
 }
