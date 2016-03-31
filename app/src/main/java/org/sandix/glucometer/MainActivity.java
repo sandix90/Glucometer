@@ -221,15 +221,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mUsbInterface = mUsbDevice.getInterface(0);
 
-        for(int nEp=0; nEp<mUsbInterface.getEndpointCount();nEp++){
-            UsbEndpoint tmpEndpoint = mUsbInterface.getEndpoint(nEp);
-            if(tmpEndpoint.getDirection() == UsbConstants.USB_DIR_IN){
-                mUsbEndPointIn = tmpEndpoint;
-            }
-            if(tmpEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) {
-                mUsbEndPointOut = tmpEndpoint;
-            }
-        }
+
+        mUsbEndPointIn = mUsbInterface.getEndpoint(2);
+        mUsbEndPointOut = mUsbInterface.getEndpoint(1);
+//        for(int nEp=0; nEp<mUsbInterface.getEndpointCount();nEp++){
+//            UsbEndpoint tmpEndpoint = mUsbInterface.getEndpoint(nEp);
+//            if(tmpEndpoint.getDirection() == UsbConstants.USB_DIR_IN){
+//                mUsbEndPointIn = tmpEndpoint;
+//            }
+//            if(tmpEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) {
+//                mUsbEndPointOut = tmpEndpoint;
+//            }
+//        }
 
         mUsbDeviceConnection = mUsbManager.openDevice(mUsbDevice);
 //        if(!mUsbManager.hasPermission(usbDevice)){
@@ -248,28 +251,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mMessage.setText("num:" +num);
         }
 
-        //String serial = mUsbDeviceConnection.getSerial();
+        String serial = mUsbDeviceConnection.getSerial();
 
         new android.os.Handler().post(new Runnable() {
             @Override
             public void run() {
-                byte[] buf = new byte[9];
+                byte[] buf = new byte[mUsbEndPointIn.getMaxPacketSize()];
                 int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length, 0);
 
                 mMessage.setText("ans1:" + + buf[0] + buf[1] + buf[2] + buf[3]+ buf[4]+ buf[5]+ buf[6]+ buf[7]+ buf[8]);
             }
         });
 
-//        new android.os.Handler().post(new Runnable() {
-//            @Override
-//            public void run() {
-//                byte[] buf2 = new byte[mUsbEndPointIn.getMaxPacketSize()];
-//                //int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length, 0);
-//
-//                mMessage.setText("ans2:" + buf2[0] + buf2[1] + buf2[2] + buf2[3]+ buf2[4]+ buf2[5]+ buf2[6]+ buf2[7]+ buf2[8]);
-//            }
-//        });
+        new android.os.Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                byte[] buf2 = new byte[mUsbEndPointIn.getMaxPacketSize()];
+                int recv_num1 = mUsbDeviceConnection.controlTransfer(UsbConstants.USB_DIR_IN,0,0,0, buf2,buf2.length,1000);
+                int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf2, buf2.length, 10000);
 
+                mMessage.setText("ans2:" + buf2[0] + buf2[1] + buf2[2] + buf2[3]+ buf2[4]+ buf2[5]+ buf2[6]+ buf2[7]+ buf2[8]);
+            }
+        });
         mUsbDeviceConnection.close();
 //        MyRunnable runn = new  MyRunnable(this, mMessage, mUsbDeviceConnection, mUsbEndPointIn);
 //        Thread thread = new Thread(runn);
@@ -311,7 +314,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        Toast.makeText(this,"Answer: "+hexToString(buffer2),Toast.LENGTH_LONG).show();
        // readData(bytes);
     }
-
 //    public static String hexToString(byte[] data)
 //    {
 //        if(data != null)
