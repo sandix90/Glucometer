@@ -5,15 +5,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
+
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.os.Message;
-import android.support.v4.app.ActivityCompat;
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -23,15 +22,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.security.Permission;
+import com.felhr.usbserial.UsbSerialDevice;
+import com.felhr.usbserial.UsbSerialInterface;
+import com.felhr.utils.HexData;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.jar.Manifest;
-import java.util.logging.Handler;
+
+
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     UsbManager mUsbManager;
@@ -236,41 +237,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            Toast.makeText(MainActivity.this, "UsbPermission required", Toast.LENGTH_SHORT).show();
 //            return;
 //        }
-        mUsbDeviceConnection.claimInterface(mUsbInterface, true);
-        //mMessage.setText("Endpoint IN Direction is: " + mUsbEndPointIn.getDirection() + ", EndPoint OUT Direction is:" + mUsbEndPointOut.getDirection());
-       // mUsbDeviceConnection.claimInterface(mUsbInterface, true);
-        //byte[] getSerialNum = {0x02};
-        byte[] getSerialNum = {0x02,0x09,0x00,0x05,0x0D,0x02,0x03,(byte)0xDA,0x71};
-        byte[] getsn = {0x02, 0x12,0x00, 0x05,0x0B,0x02,0x00,0x00,0x00,0x00,(byte)0x84,0x6A, (byte)0xE8,0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
+        UsbSerialDevice serialDevice = UsbSerialDevice.createUsbSerialDevice(mUsbDevice,mUsbDeviceConnection);
+        serialDevice.open();
+        serialDevice.setBaudRate(9600);
+        serialDevice.setStopBits(UsbSerialInterface.STOP_BITS_1);
+        serialDevice.setDataBits(UsbSerialInterface.DATA_BITS_8);
+        serialDevice.setParity(UsbSerialInterface.PARITY_NONE);
+        serialDevice.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
+
+
         byte[] startcmd = {0x02,0x06,0x08,0x03,(byte)0xC2,0x62};
-        int num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointOut, startcmd, startcmd.length, 10);
-        if(num>0){
-            mMessage.setText("num:" +num);
-        }
+        byte[] getsn = {0x02, 0x12,0x00, 0x05,0x0B,0x02,0x00,0x00,0x00,0x00,(byte)0x84,0x6A, (byte)0xE8,0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
+        byte[] readfirstrec = {0x02,0x0A,0x03,0x05,0x1F,0x00,0x00,0x03,0x4B,0x5F};
+        //serialDevice.write(getsn);
+        serialDevice.syncOpen();
+        serialDevice.syncWrite(getsn, 0);
+        byte[] buf = new byte[64];
+        serialDevice.syncRead(buf,0);
+        serialDevice.syncClose();
+        mMessage.setText("l:"+buf.length+" d:"+buf[0]+" "+buf[1]+" "+buf[2]+
+                " "+buf[3]+" "+buf[4]+
+                " "+buf[5]+" "+buf[6]+" "+buf[7]+" "+buf[8]+" "+buf[9]+" "+buf[10]+" "+buf[11]+" "+buf[12]+" "+buf[13]+" "+buf[14]+" "+buf[15]+" "+buf[16]+" "+buf[17]+buf[18]+"\n hexTostr: "+ new String(buf, StandardCharsets.UTF_8));
+        //serialDevice.read(mCallback);
+        //erialDevice.close();
 
-        //String serial = mUsbDeviceConnection.getSerial();
 
-        new android.os.Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                byte[] buf = new byte[9];
-                int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length, 0);
-
-                mMessage.setText("ans1:" + + buf[0] + buf[1] + buf[2] + buf[3]+ buf[4]+ buf[5]+ buf[6]+ buf[7]+ buf[8]);
-            }
-        });
-
+//        mUsbDeviceConnection.claimInterface(mUsbInterface, true);
+//        //mMessage.setText("Endpoint IN Direction is: " + mUsbEndPointIn.getDirection() + ", EndPoint OUT Direction is:" + mUsbEndPointOut.getDirection());
+//       // mUsbDeviceConnection.claimInterface(mUsbInterface, true);
+//        //byte[] getSerialNum = {0x02};
+//        byte[] getSerialNum = {0x02,0x09,0x00,0x05,0x0D,0x02,0x03,(byte)0xDA,0x71};
+//        byte[] getsn = {0x02, 0x12,0x00, 0x05,0x0B,0x02,0x00,0x00,0x00,0x00,(byte)0x84,0x6A, (byte)0xE8,0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
+//
+//        int num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointOut, startcmd, startcmd.length, 10);
+//        if(num>0){
+//            mMessage.setText("num:" +num);
+//        }
+//
+//        //String serial = mUsbDeviceConnection.getSerial();
+//
 //        new android.os.Handler().post(new Runnable() {
 //            @Override
 //            public void run() {
-//                byte[] buf2 = new byte[mUsbEndPointIn.getMaxPacketSize()];
-//                //int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length, 0);
+//                byte[] buf = new byte[9];
+//                int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length, 0);
 //
-//                mMessage.setText("ans2:" + buf2[0] + buf2[1] + buf2[2] + buf2[3]+ buf2[4]+ buf2[5]+ buf2[6]+ buf2[7]+ buf2[8]);
+//                mMessage.setText("ans1:" + + buf[0] + buf[1] + buf[2] + buf[3]+ buf[4]+ buf[5]+ buf[6]+ buf[7]+ buf[8]);
 //            }
 //        });
-
-        mUsbDeviceConnection.close();
+//
+////        new android.os.Handler().post(new Runnable() {
+////            @Override
+////            public void run() {
+////                byte[] buf2 = new byte[mUsbEndPointIn.getMaxPacketSize()];
+////                //int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length, 0);
+////
+////                mMessage.setText("ans2:" + buf2[0] + buf2[1] + buf2[2] + buf2[3]+ buf2[4]+ buf2[5]+ buf2[6]+ buf2[7]+ buf2[8]);
+////            }
+////        });
+//
+//        mUsbDeviceConnection.close();
 //        MyRunnable runn = new  MyRunnable(this, mMessage, mUsbDeviceConnection, mUsbEndPointIn);
 //        Thread thread = new Thread(runn);
 //        thread.start();
@@ -311,63 +337,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        Toast.makeText(this,"Answer: "+hexToString(buffer2),Toast.LENGTH_LONG).show();
        // readData(bytes);
     }
-
-//    public static String hexToString(byte[] data)
-//    {
-//        if(data != null)
-//        {
-//            StringBuilder hex = new StringBuilder(2*data.length);
-//            for(int i=0;i<=data.length-1;i++)
-//            {
-//                byte dataAtIndex = data[i];
-//                hex.append(HEX_INDICATOR);
-//                hex.append(HEXES.charAt((dataAtIndex & 0xF0) >> 4))
-//                        .append(HEXES.charAt((dataAtIndex & 0x0F)));
-//                hex.append(SPACE);
-//            }
-//            return hex.toString();
-//        }else
-//        {
-//            return null;
-//        }
-//    }
-
-    public static byte[] stringTobytes(String hexString)
-    {
-        String stringProcessed = hexString.trim().replaceAll("0x", "");
-        stringProcessed = stringProcessed.replaceAll("\\s+","");
-        byte[] data = new byte[stringProcessed.length()/2];
-        int i = 0;
-        int j = 0;
-        while(i <= stringProcessed.length()-1)
-        {
-            byte character = (byte) Integer.parseInt(stringProcessed.substring(i, i+2), 16);
-            data[j] = character;
-            j++;
-            i += 2;
-        }
-        return data;
-    }
-
-    private void readData(){
-        byte[] buf = new byte[mUsbEndPointIn.getMaxPacketSize()];
-        int recv_num = mUsbDeviceConnection.bulkTransfer(mUsbEndPointIn, buf, buf.length, 0);
-
-        mMessage.setText("ans:" + buf);
-    }
-
-    public int writeData(final byte[] data, final int length) {
-        int offset = 0;
-
-        while (offset < length) {
-            int size = Math.min(length - offset, mUsbEndPointIn.getMaxPacketSize());
-            int bytesWritten = mUsbDeviceConnection.bulkTransfer(mUsbEndPointOut,
-                    Arrays.copyOfRange(data, offset, offset + size), size, 0);
-
-           // if (bytesWritten <= 0)
-            offset += bytesWritten;
-        }
-        return offset;
-    }
-
 }
