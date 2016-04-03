@@ -1,5 +1,7 @@
 package com.felhr.usbserial;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.felhr.deviceids.CH34xIds;
@@ -186,6 +188,31 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
         }
         return false;
     }
+
+    public int getInEndPointBufferSize(){
+        if(inEndpoint!=null){
+            return inEndpoint.getMaxPacketSize();
+        }
+        else{
+            return 0;
+        }
+    }
+
+    public int getRecordsCount(){
+
+        byte[] recordsCount =  {0x02,0x0A,0x00,0x05,0x1F, (byte) 0xF5,0x01,0x03,0x038, (byte) 0xAA};
+        syncWrite(recordsCount, 0);
+        try {
+            Thread.sleep(2000);
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
+        byte[] buf = new byte[getInEndPointBufferSize()];
+        syncRead(buf,0);
+        return (int)(buf[11]+buf[12]);
+    }
+
 
 
     /*

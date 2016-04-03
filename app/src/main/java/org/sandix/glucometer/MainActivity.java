@@ -26,6 +26,7 @@ import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 import com.felhr.utils.HexData;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -219,19 +220,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(!mUsbManager.hasPermission(mUsbDevice)){
             mUsbManager.requestPermission(mUsbDevice, mPermissionIntent);
         }
-
         mUsbInterface = mUsbDevice.getInterface(0);
-
-        for(int nEp=0; nEp<mUsbInterface.getEndpointCount();nEp++){
-            UsbEndpoint tmpEndpoint = mUsbInterface.getEndpoint(nEp);
-            if(tmpEndpoint.getDirection() == UsbConstants.USB_DIR_IN){
-                mUsbEndPointIn = tmpEndpoint;
-            }
-            if(tmpEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) {
-                mUsbEndPointOut = tmpEndpoint;
-            }
-        }
-
         mUsbDeviceConnection = mUsbManager.openDevice(mUsbDevice);
 //        if(!mUsbManager.hasPermission(usbDevice)){
 //            Toast.makeText(MainActivity.this, "UsbPermission required", Toast.LENGTH_SHORT).show();
@@ -239,25 +228,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        }
         UsbSerialDevice serialDevice = UsbSerialDevice.createUsbSerialDevice(mUsbDevice,mUsbDeviceConnection);
         serialDevice.open();
-        serialDevice.setBaudRate(9600);
-        serialDevice.setStopBits(UsbSerialInterface.STOP_BITS_1);
-        serialDevice.setDataBits(UsbSerialInterface.DATA_BITS_8);
-        serialDevice.setParity(UsbSerialInterface.PARITY_NONE);
-        serialDevice.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
-
+//        serialDevice.setBaudRate(9600);
+//        serialDevice.setStopBits(UsbSerialInterface.STOP_BITS_1);
+//        serialDevice.setDataBits(UsbSerialInterface.DATA_BITS_8);
+//        serialDevice.setParity(UsbSerialInterface.PARITY_NONE);
+//        serialDevice.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
 
         byte[] startcmd = {0x02,0x06,0x08,0x03,(byte)0xC2,0x62};
         byte[] getsn = {0x02, 0x12,0x00, 0x05,0x0B,0x02,0x00,0x00,0x00,0x00,(byte)0x84,0x6A, (byte)0xE8,0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
         byte[] readfirstrec = {0x02,0x0A,0x03,0x05,0x1F,0x00,0x00,0x03,0x4B,0x5F};
-        //serialDevice.write(getsn);
+        byte[] readRecCount = {0x02,0x0A,0x00,0x05,0x1F, (byte) 0xF5,0x01,0x03,0x038, (byte) 0xAA};
         serialDevice.syncOpen();
         serialDevice.syncWrite(getsn, 0);
-        byte[] buf = new byte[64];
-        serialDevice.syncRead(buf,0);
+        byte[] buf = new byte[serialDevice.getInEndPointBufferSize()];
+        try {
+            Thread.sleep(2000);
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
+        int n = serialDevice.syncRead(buf, 10);
+        String str = new String(Arrays.copyOfRange(buf,11,20), StandardCharsets.UTF_8);
+        mMessage.setText(serialDevice.getRecordsCount());
         serialDevice.syncClose();
-        mMessage.setText("l:"+buf.length+" d:"+buf[0]+" "+buf[1]+" "+buf[2]+
-                " "+buf[3]+" "+buf[4]+
-                " "+buf[5]+" "+buf[6]+" "+buf[7]+" "+buf[8]+" "+buf[9]+" "+buf[10]+" "+buf[11]+" "+buf[12]+" "+buf[13]+" "+buf[14]+" "+buf[15]+" "+buf[16]+" "+buf[17]+buf[18]+"\n hexTostr: "+ new String(buf, StandardCharsets.UTF_8));
+
+//        mMessage.setText("l:"+buf.length+" d:"+buf[0]+" "+buf[1]+" "+buf[2]+
+//                " "+buf[3]+" "+buf[4]+
+//                " "+buf[5]+" "+buf[6]+" "+buf[7]+" "+buf[8]+" "+buf[9]+" "+buf[10]+" "+buf[11]+" "+buf[12]+" "+buf[13]+" "+buf[14]+" "+buf[15]+" "+buf[16]+" "+buf[17]+buf[18]+"\n hexTostr: "+ new String(buf, StandardCharsets.UTF_8));
         //serialDevice.read(mCallback);
         //erialDevice.close();
 
