@@ -26,6 +26,9 @@ import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 import com.felhr.utils.HexData;
 
+import org.sandix.glucometer.models.Mlekopitaushee;
+import org.sandix.glucometer.models.UsbGlucometerDevice;
+
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -221,25 +224,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mUsbManager.requestPermission(mUsbDevice, mPermissionIntent);
         }
         mUsbInterface = mUsbDevice.getInterface(0);
+
         mUsbDeviceConnection = mUsbManager.openDevice(mUsbDevice);
 //        if(!mUsbManager.hasPermission(usbDevice)){
 //            Toast.makeText(MainActivity.this, "UsbPermission required", Toast.LENGTH_SHORT).show();
 //            return;
 //        }
-        UsbSerialDevice serialDevice = UsbSerialDevice.createUsbSerialDevice(mUsbDevice,mUsbDeviceConnection);
+        UsbSerialDevice serialDevice = UsbSerialDevice.createUsbSerialDevice(mUsbDevice, mUsbDeviceConnection);
         serialDevice.open();
+        UsbGlucometerDevice dev = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
+
+
 //        serialDevice.setBaudRate(9600);
 //        serialDevice.setStopBits(UsbSerialInterface.STOP_BITS_1);
 //        serialDevice.setDataBits(UsbSerialInterface.DATA_BITS_8);
 //        serialDevice.setParity(UsbSerialInterface.PARITY_NONE);
 //        serialDevice.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
 
-        byte[] startcmd = {0x02,0x06,0x08,0x03,(byte)0xC2,0x62};
-        byte[] getsn = {0x02, 0x12,0x00, 0x05,0x0B,0x02,0x00,0x00,0x00,0x00,(byte)0x84,0x6A, (byte)0xE8,0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
-        byte[] readfirstrec = {0x02,0x0A,0x03,0x05,0x1F,0x00,0x00,0x03,0x4B,0x5F};
+
+
+
+
+
+        byte[] startCmd = {0x02,0x06,0x08,0x03,(byte)0xC2,0x62};
+        byte[] getSN = {0x02, 0x12,0x00, 0x05,0x0B,0x02,0x00,0x00,0x00,0x00,(byte)0x84,0x6A, (byte)0xE8,0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
+        byte[] readFirstRec = {0x02,0x0A,0x03,0x05,0x1F,0x00,0x00,0x03,0x4B,0x5F};
         byte[] readRecCount = {0x02,0x0A,0x00,0x05,0x1F, (byte) 0xF5,0x01,0x03,0x038, (byte) 0xAA};
         serialDevice.syncOpen();
-        serialDevice.syncWrite(getsn, 0);
+        serialDevice.syncWrite(getSN, 0);
         byte[] buf = new byte[serialDevice.getInEndPointBufferSize()];
         try {
             Thread.sleep(2000);
