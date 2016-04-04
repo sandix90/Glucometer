@@ -5,12 +5,16 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 
 /**
- * Created by sandakov.a on 04.04.2016.
+ * Abstract class for detect device model
+ * Use: \n
+ * 1. call static method initializeUsbDevice
+ * 2. then open()
+ * 3. use prepared methods to get information from glucometer
+ * 4. close connection
  */
 public abstract class UsbGlucometerDevice {
-    private UsbDeviceConnection connection;
-    private UsbDevice device;
-
+    protected UsbDeviceConnection connection; //Can't be private, because it need for children classes access.
+    protected UsbDevice device;
 
     private UsbEndpoint inEndPoint;
     private UsbEndpoint outEndPoint;
@@ -19,17 +23,14 @@ public abstract class UsbGlucometerDevice {
     public UsbGlucometerDevice(UsbDevice device, UsbDeviceConnection connection){
         this.device = device;
         this.connection = connection;
-
-
     }
 
-
-
-    public static UsbGlucometerDevice initializeUsbDevice(android.hardware.usb.UsbDevice device, UsbDeviceConnection connection){
-
+    public static UsbGlucometerDevice initializeUsbDevice(UsbDevice device, UsbDeviceConnection connection){
+        //Lets make a choice of device model
         int vendorID = device.getVendorId();
         int productID = device.getProductId();
-        if(OneTouchUltraEasy.isSupported(vendorID,productID)) {
+
+        if(OneTouchUltraEasy.isDeviceSupported(vendorID,productID)) {
             return new OneTouchUltraEasy(device, connection);
         }
         return null;
@@ -59,6 +60,11 @@ public abstract class UsbGlucometerDevice {
             return 0;
         }
         return connection.bulkTransfer(inEndPoint,buffer,buffer.length,0);
+    }
+
+    protected void setUsbEndPoints(UsbEndpoint inEndPoint, UsbEndpoint outEndPoint){
+        this.inEndPoint = inEndPoint;
+        this.outEndPoint = outEndPoint;
     }
 
 }

@@ -1,16 +1,11 @@
 package org.sandix.glucometer;
 
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 
 import android.support.v7.app.AppCompatActivity;
@@ -22,17 +17,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.felhr.usbserial.UsbSerialDevice;
-import com.felhr.usbserial.UsbSerialInterface;
-import com.felhr.utils.HexData;
-
-import org.sandix.glucometer.models.Mlekopitaushee;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
-
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -44,30 +30,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button refreshBtn, getInfoBtn;
     TextView mMessage;
     UsbDevice mUsbDevice;
-    boolean isConnected=false;
 
-    UsbEndpoint mUsbEndPointOut, mUsbEndPointIn;
-    UsbInterface mUsbInterface;
     UsbDeviceConnection mUsbDeviceConnection;
     PendingIntent mPermissionIntent;
-    android.os.Handler h;
+//    android.os.Handler h;
 
-    private byte[] bytes;
-    private static int TIMEOUT = 0;
     private static final String ACTION_USB_PERMISSION =
             "org.sandix.glucometer.USB_PERMISSION";
-//    private static final String HEXES = "0123456789ABCDEF";
-//    private static final String HEX_INDICATOR = "0x";
-//    private static final String SPACE = " ";
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mUsbManager = (UsbManager) getSystemService(this.USB_SERVICE);
+        mUsbManager = (UsbManager) getSystemService(USB_SERVICE);
         deviceList = (ListView) findViewById(R.id.device_list);
         refreshBtn = (Button) findViewById(R.id.refresh_btn);
         refreshBtn.setOnClickListener(this);
@@ -80,39 +56,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(mUsbDevice != null){
             Toast.makeText(MainActivity.this, "mUsbDevice:" +mUsbDevice.toString() +", VID: "+mUsbDevice.getVendorId()+" PID:"+mUsbDevice.getProductId(), Toast.LENGTH_SHORT).show();
         }
-        BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if(ACTION_USB_PERMISSION.equals(action)){
-                    synchronized (this){
-                        mUsbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-
-                        if(intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)){
-                            if(mUsbDevice != null){
-                                communicate();
-                            }
-                        }
-                        else{
-                            Toast.makeText(MainActivity.this, "Permission denied for device "+mUsbDevice, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            }
-        };
-
-
+//        BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                String action = intent.getAction();
+//                if(ACTION_USB_PERMISSION.equals(action)){
+//                    synchronized (this){
+//                        mUsbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+//
+//                        if(intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)){
+//                            if(mUsbDevice != null){
+//                                communicate();
+//                            }
+//                        }
+//                        else{
+//                            Toast.makeText(MainActivity.this, "Permission denied for device "+mUsbDevice, Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                }
+//            }
+//        };
         mPermissionIntent = PendingIntent.getBroadcast(this,0,new Intent(ACTION_USB_PERMISSION),0);
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 
-         h = new android.os.Handler(){
-           public void handleMessage(android.os.Message msg){
-               mMessage.setText(msg.what);
-           }
-        };
-
+//        h = new android.os.Handler(){
+//           public void handleMessage(android.os.Message msg){
+//               mMessage.setText(msg.what);
+//           }
+//        };
 //        registerReceiver(mUsbReceiver, filter);
 
 
@@ -172,13 +145,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //Toast.makeText(MainActivity.this, mUsbManager.getDeviceList().values().toString(), Toast.LENGTH_SHORT).show();
             for (UsbDevice usbDevice : mUsbManager.getDeviceList().values()) {
 
-                items.add("DeviceName: "+ usbDevice.getDeviceName().toString());
+                items.add("DeviceName: "+ usbDevice.getDeviceName());
                 items.add("DeviceID: "+ String.valueOf(usbDevice.getDeviceId()));
                 items.add("DeviceClass: "+ String.valueOf(usbDevice.getDeviceClass()));
                 items.add("DeviceProtocol: "+ String.valueOf(usbDevice.getDeviceProtocol()));
                 items.add("DeviceVendorID: "+ String.valueOf(usbDevice.getVendorId()));
                 items.add("DeviceProductID: "+ usbDevice.getProductId());
-                items.add("DeviceManufName: "+ usbDevice.getManufacturerName());
+               // items.add("DeviceManufName: "+ usbDevice.getManufacturerName());
 
 
             }
@@ -187,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }catch (Exception e){
             //Toast.makeText(MainActivity.this,e.getMessage().toString(),Toast.LENGTH_LONG).show();
-            mMessage.setText(e.getMessage().toString());
+            mMessage.setText(e.getMessage());
         }
 
 
@@ -200,13 +173,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tmp();
                 break;
             case R.id.get_info:
-//                if(isConnected){
-//                    communicate();
-//                }
-//                else
-//                {
-//                    Toast.makeText(MainActivity.this, "No connected glucometer found", Toast.LENGTH_SHORT).show();
-//                }
                 communicate();
                 break;
         }
@@ -223,46 +189,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(!mUsbManager.hasPermission(mUsbDevice)){
             mUsbManager.requestPermission(mUsbDevice, mPermissionIntent);
         }
-        mUsbInterface = mUsbDevice.getInterface(0);
-
+        //mUsbInterface = mUsbDevice.getInterface(0);
         mUsbDeviceConnection = mUsbManager.openDevice(mUsbDevice);
-//        if(!mUsbManager.hasPermission(usbDevice)){
-//            Toast.makeText(MainActivity.this, "UsbPermission required", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-        UsbSerialDevice serialDevice = UsbSerialDevice.createUsbSerialDevice(mUsbDevice, mUsbDeviceConnection);
-        serialDevice.open();
+
+        //UsbSerialDevice serialDevice = UsbSerialDevice.createUsbSerialDevice(mUsbDevice, mUsbDeviceConnection);
+        //serialDevice.open();
         UsbGlucometerDevice dev = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
-
-
-//        serialDevice.setBaudRate(9600);
-//        serialDevice.setStopBits(UsbSerialInterface.STOP_BITS_1);
-//        serialDevice.setDataBits(UsbSerialInterface.DATA_BITS_8);
-//        serialDevice.setParity(UsbSerialInterface.PARITY_NONE);
-//        serialDevice.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
-
-
-
-
-
-
-        byte[] startCmd = {0x02,0x06,0x08,0x03,(byte)0xC2,0x62};
-        byte[] getSN = {0x02, 0x12,0x00, 0x05,0x0B,0x02,0x00,0x00,0x00,0x00,(byte)0x84,0x6A, (byte)0xE8,0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
-        byte[] readFirstRec = {0x02,0x0A,0x03,0x05,0x1F,0x00,0x00,0x03,0x4B,0x5F};
-        byte[] readRecCount = {0x02,0x0A,0x00,0x05,0x1F, (byte) 0xF5,0x01,0x03,0x038, (byte) 0xAA};
-        serialDevice.syncOpen();
-        serialDevice.syncWrite(getSN, 0);
-        byte[] buf = new byte[serialDevice.getInEndPointBufferSize()];
-        try {
-            Thread.sleep(2000);
+        if(dev!=null) {
+            dev.open();
+            mMessage.setText(dev.getSN());
+            dev.close();
         }
-        catch (Exception ex){
-            ex.printStackTrace();
-        }
-        int n = serialDevice.syncRead(buf, 10);
-        String str = new String(Arrays.copyOfRange(buf,11,20), StandardCharsets.UTF_8);
-        mMessage.setText(serialDevice.getRecordsCount());
-        serialDevice.syncClose();
+//        byte[] startCmd = {0x02,0x06,0x08,0x03,(byte)0xC2,0x62};
+//        byte[] getSN = {0x02, 0x12,0x00, 0x05,0x0B,0x02,0x00,0x00,0x00,0x00,(byte)0x84,0x6A, (byte)0xE8,0x73,0x00,0x03,(byte)0x9B,(byte)0xEA};
+//
+//        byte[] readRecCount = {0x02,0x0A,0x00,0x05,0x1F, (byte) 0xF5,0x01,0x03,0x038, (byte) 0xAA};
+//        serialDevice.syncOpen();
+//        serialDevice.syncWrite(getSN, 0);
+//        byte[] buf = new byte[serialDevice.getInEndPointBufferSize()];
+//        try {
+//            Thread.sleep(2000);
+//        }
+//        catch (Exception ex){
+//            ex.printStackTrace();
+//        }
+//        int n = serialDevice.syncRead(buf, 10);
+//        String str = new String(Arrays.copyOfRange(buf,11,20), StandardCharsets.UTF_8);
+//        mMessage.setText(serialDevice.getRecordsCount());
+//        serialDevice.syncClose();
+
+
 
 //        mMessage.setText("l:"+buf.length+" d:"+buf[0]+" "+buf[1]+" "+buf[2]+
 //                " "+buf[3]+" "+buf[4]+

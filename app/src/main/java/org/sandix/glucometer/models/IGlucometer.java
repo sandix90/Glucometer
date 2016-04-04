@@ -12,4 +12,5 @@ public interface IGlucometer {
     public boolean isSupported(int vendorID, int productID);
     int write(byte[] data);
     int read(byte[] data);
+
 }
