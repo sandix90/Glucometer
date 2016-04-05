@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+    <item
+        android:id="@+id/getsn"
+        android:title="get serial number"
+        android:orderInCategory="100"
+        />
+    <item
+        android:id="@+id/getrecordscount"
+        android:title="get records count"
+        android:orderInCategory="200"
+        />
+    <item
+        android:id="@+id/getfirstrecord"
+        android:title="get first record"
+        android:orderInCategory="200"
+        />
+</menu>

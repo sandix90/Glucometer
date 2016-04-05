@@ -3,6 +3,7 @@ package org.sandix.glucometer.models;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
+import android.util.Log;
 
 /**
  * Abstract class for detect device model
@@ -46,7 +47,9 @@ public abstract class UsbGlucometerDevice {
         if(data==null){
             return 0;
         }
-        return connection.bulkTransfer(outEndPoint,data,data.length,0);
+        int a = connection.bulkTransfer(outEndPoint,data,data.length,0);
+        Log.d("UsbGlucometerDevice","write answer: "+a);
+        return a;
     }
 
     public int read(byte[] buffer){
@@ -59,7 +62,9 @@ public abstract class UsbGlucometerDevice {
         if(buffer==null){
             return 0;
         }
-        return connection.bulkTransfer(inEndPoint,buffer,buffer.length,0);
+        int a = connection.bulkTransfer(inEndPoint,buffer,buffer.length,10);
+        Log.d("UsbGlucometerDevice","read answer: "+a);
+        return a;
     }
 
     protected void setUsbEndPoints(UsbEndpoint inEndPoint, UsbEndpoint outEndPoint){
