@@ -3,6 +3,8 @@ package org.sandix.glucometer.models;
 import android.hardware.usb.*;
 import android.util.Log;
 
+import org.sandix.glucometer.tools;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -143,7 +145,7 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
         if(data != null)
             dataLength = data.length;
         int response = connection.controlTransfer(reqType, request, value, index, data, dataLength, 5000);
-        Log.i(LOG_TAG,"Control Transfer Response: " + String.valueOf(response));
+        Log.i(LOG_TAG, "Control Transfer Response: " + String.valueOf(response));
         return response;
     }
 
@@ -171,12 +173,10 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
             Log.d(LOG_TAG,"Date in sting: "+date);
             String value = new String(Arrays.copyOfRange(buffer,15,18), StandardCharsets.UTF_8);
             Log.d(LOG_TAG,"Value in string: "+value);
-            str[0] = new StringBuffer(date).reverse().toString();
-            str[1] = new StringBuffer(value).reverse().toString();
+
+            str[0] = String.valueOf(Integer.parseInt(tools.hexToString(tools.reverseArray(Arrays.copyOfRange(buffer,11,15))),16));
+            str[1] = new String(tools.reverseArray(Arrays.copyOfRange(buffer,15,19)),StandardCharsets.UTF_8);
         }
-
-
-
 
         return str;
     }
