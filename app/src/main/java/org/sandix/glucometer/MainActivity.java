@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button refreshBtn, getInfoBtn;
     TextView mMessage;
     UsbDevice mUsbDevice;
+    UsbGlucometerDevice glucometerDevice;
 
     UsbDeviceConnection mUsbDeviceConnection;
     PendingIntent mPermissionIntent;
@@ -95,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 communicate();
                 break;
         }
-
     }
 
     private void communicate() {
@@ -104,8 +104,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mUsbManager.requestPermission(mUsbDevice, mPermissionIntent);
         }
         //mUsbInterface = mUsbDevice.getInterface(0);
-
-
         //UsbSerialDevice serialDevice = UsbSerialDevice.createUsbSerialDevice(mUsbDevice, mUsbDeviceConnection);
         //serialDevice.open();
         UsbGlucometerDevice dev = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
@@ -129,28 +127,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (id){
             case R.id.getsn:
                 MyAsyncTask t = new MyAsyncTask(MainActivity.this);
-                UsbGlucometerDevice glucometerDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
-                glucometerDevice.open();
-                mMessage.setText("SN: " + glucometerDevice.getSN());
-                glucometerDevice.close();
+                getGlucometerSN();
                 break;
             case R.id.getfirstrecord:
-                UsbGlucometerDevice glucometerDevice1 = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
-                glucometerDevice1.open();
-                String[] str = new String[2];
-                str = glucometerDevice1.getRecord(0);
-                Log.d("MainAct","Str length: "+str.length);
-                mMessage.setText("Data: "+ str[0]+" Value: "+str[1]);
-                glucometerDevice1.close();
+                getGlucometerRecord();
                 break;
             case R.id.getrecordscount:
-                UsbGlucometerDevice glucometerDevice2 = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
-                glucometerDevice2.open();
-                mMessage.setText("Count: "+String.valueOf(glucometerDevice2.getRecordsCount()));
-                glucometerDevice2.close();
+                getGlucometerRecordCount();
                 break;
         }
         return true;
+    }
+
+    private void getGlucometerSN(){
+        if(mUsbDevice!=null){
+            glucometerDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
+            glucometerDevice.open();
+            mMessage.setText("SN: " + glucometerDevice.getSN());
+            glucometerDevice.close();
+        }
+    }
+
+    private void getGlucometerRecord(){
+        if(mUsbDevice!=null){
+            glucometerDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
+            glucometerDevice.open();
+            String[] str = new String[2];
+            str = glucometerDevice.getRecord(0);
+            Log.d("MainAct", "Str length: " + str.length);
+            mMessage.setText("Data: "+ str[0]+" Value: "+str[1]);
+            glucometerDevice.close();
+        }
+    }
+
+    private void getGlucometerRecordCount(){
+        if(mUsbDevice!=null){
+            glucometerDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
+            glucometerDevice.open();
+            mMessage.setText("Count: "+String.valueOf(glucometerDevice.getRecordsCount()));
+            glucometerDevice.close();
+        }
     }
 }
 
