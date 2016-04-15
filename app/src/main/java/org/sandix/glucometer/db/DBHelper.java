@@ -22,8 +22,12 @@ public class DBHelper extends SQLiteOpenHelper {
                         "last_name nvarchar(50)," +
                         "middle_name nvarchar(50)," +
                         "first_name nvarchar(50)," +
-                        "sex nvarchar(2))";
+                        "age integer," +
+                        "therapy_type nvarchar(50)" +
+                        "sex boolean" +
+                        ")";
         db.execSQL(main_tableQuery);
+
 
         String values_tableQuery=
                 "CREATE TABLE values (" +
@@ -39,6 +43,8 @@ public class DBHelper extends SQLiteOpenHelper {
                         "serial_num nvarchar(30)," +
                         "last_sync datetime)";
         db.execSQL(sync_tableQuery);
+
+
     }
 
     @Override
