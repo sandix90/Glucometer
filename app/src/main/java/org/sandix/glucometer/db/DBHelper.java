@@ -23,22 +23,26 @@ public class DBHelper extends SQLiteOpenHelper {
                         "middle_name nvarchar(50)," +
                         "first_name nvarchar(50)," +
                         "age integer," +
-                        "therapy_type nvarchar(50)" +
-                        "sex boolean" +
+                        "therapy_type nvarchar(50)," +
+                        "gender boolean," +
+                        "phone nvarchar(20)," +
+                        "diabetes_type nvarchar(40)," +
+                        "email nvarchar(50)" +
                         ")";
         db.execSQL(main_tableQuery);
 
 
         String values_tableQuery=
-                "CREATE TABLE values (" +
+                "CREATE TABLE values_table (" +
                         "id integer primary key autoincrement," +
                         "serial_num nvarchar(30)," +
                         "gluc_value real," +
-                        "value_date datetime)";
+                        "value_date datetime" +
+                        ")";
         db.execSQL(values_tableQuery);
 
         String sync_tableQuery =
-                "CREATE TABLE sync (" +
+                "CREATE TABLE sync(" +
                         "id integer primary key autoincrement," +
                         "serial_num nvarchar(30)," +
                         "last_sync datetime)";

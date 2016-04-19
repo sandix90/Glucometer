@@ -70,7 +70,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".ClientForm">
 
-        <include layout="@layout/table_user_form"/>
+        <include layout="@layout/recycler_clientform"/>
 
 
     </android.support.v4.widget.NestedScrollView>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp">
+
+    <TableRow
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_height="26dp"
+            android:layout_width="24dp"
+            android:layout_weight="1"
+            android:src="@mipmap/male_and_female_sign"/>
+
+        <TextView
+            android:id="@+id/textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textSize="20dp"
+            android:layout_weight="2"
+            android:text="мужской"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_marginTop="15dp">
+
+        <View android:layout_height="1dp" android:layout_weight="1"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:layout_weight="2"
+            android:src="@drawable/line"/>
+    </TableRow>
+      </TableLayout>
+
+
+</LinearLayout>
