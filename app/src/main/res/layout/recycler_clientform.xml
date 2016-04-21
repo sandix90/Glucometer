@@ -4,18 +4,13 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-   <!-- <android.support.v7.widget.RecyclerView
+   <android.support.v7.widget.RecyclerView
         android:background="@drawable/frame"
         android:id="@+id/mainRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </android.support.v7.widget.RecyclerView> -->
-    <android.support.design.widget.NavigationView
-        android:layout_width="match_parent"
-        app:menu="@menu/client_form_content_menu"
-        android:layout_height="wrap_content">
+    </android.support.v7.widget.RecyclerView>
 
-    </android.support.design.widget.NavigationView>
 
 </LinearLayout>

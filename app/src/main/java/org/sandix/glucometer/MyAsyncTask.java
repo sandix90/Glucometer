@@ -20,6 +20,8 @@ public class MyAsyncTask extends AsyncTask<Integer,String,Void> {
 
     @Override
     protected Void doInBackground(Integer... params) {
+
+
         return null;
     }
 
@@ -30,6 +32,7 @@ public class MyAsyncTask extends AsyncTask<Integer,String,Void> {
                 "ProgressDialog",
                 "Получение данных");
         progressDialog.setCanceledOnTouchOutside(true);
+
     }
 
     @Override
