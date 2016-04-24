@@ -5,5 +5,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="white">#FFFFFF</color>
     <color name="notwhite">#3F52B5</color>
-    <color name="personBackground">#FF5D5D5E</color>
+    <color name="personBackground">#5D5D5E</color>
+    <color name="spinnerBackground">#ffffff</color>
 </resources>

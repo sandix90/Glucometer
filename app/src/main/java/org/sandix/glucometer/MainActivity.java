@@ -7,13 +7,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 
 import android.os.AsyncTask;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,10 +29,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.sandix.glucometer.beans.MainListBean;
+import org.sandix.glucometer.db.DBHelper;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     UsbManager mUsbManager;
@@ -39,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     UsbDeviceConnection mUsbDeviceConnection;
     PendingIntent mPermissionIntent;
+    RecyclerView main_list;
+    FloatingActionButton fab;
 //    android.os.Handler h;
 
     private static final String ACTION_USB_PERMISSION =
@@ -50,12 +60,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         mUsbManager = (UsbManager) getSystemService(USB_SERVICE);
-        deviceList = (ListView) findViewById(R.id.device_list);
+        //deviceList = (ListView) findViewById(R.id.device_list);
         refreshBtn = (Button) findViewById(R.id.refresh_btn);
         refreshBtn.setOnClickListener(this);
         mMessage = (TextView) findViewById(R.id.message);
         getInfoBtn = (Button) findViewById(R.id.get_info);
         getInfoBtn.setOnClickListener(this);
+        main_list = (RecyclerView) findViewById(R.id.main_list);
+        main_list.setLayoutManager(new LinearLayoutManager(this));
+        fab = (FloatingActionButton) findViewById(R.id.add_user);
+
+        fab.setOnClickListener(this);
 
 
         mUsbDevice = getIntent().getParcelableExtra(mUsbManager.EXTRA_DEVICE);
@@ -101,8 +116,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.get_info:
                 //communicate();
-                Intent intent = new Intent(this, ClientForm.class);
+                Intent intent = new Intent(this, DetailedInfoClientForm.class);
                 startActivity(intent);
+                break;
+            case R.id.add_user:
+                Intent i = new Intent(this, EditClientForm.class);
+                startActivity(i);
                 break;
         }
     }
@@ -144,6 +163,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.getrecordscount:
                 AsyncGlucometerExecutor task = new AsyncGlucometerExecutor(this);
                 task.execute();
+                try {
+                    Cursor c = task.get();
+                    List<MainListBean> mData = new ArrayList<>();
+                    if(c.moveToFirst()){
+                        do{
+                            mData.add(new MainListBean(c.getInt(c.getColumnIndex("id")),c.getString(c.getColumnIndex("last_name")),c.getString(c.getColumnIndex("first_name"))));
+                        }while(c.moveToNext());
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+
                 //getGlucometerRecordCount();
                 break;
         }
@@ -189,67 +222,71 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return -1;
     }
 
-    class AsyncGlucometerExecutor extends AsyncTask<Void,Integer,Void>{
+    class AsyncGlucometerExecutor extends AsyncTask<Void,Integer,Cursor>{
         private ProgressDialog dialog;
         private boolean running;
         private Context context;
+        private Cursor cursor;
+        private DBHelper dbHelper;
+        private SQLiteDatabase db;
 
 
         public AsyncGlucometerExecutor(Context context){
             this.context = context;
             dialog = new ProgressDialog(context);
             dialog.setCanceledOnTouchOutside(true);
-            dialog.setTitle("Выполнение ассинхронной операции");
+            //dialog.setTitle("Выполнение ассинхронной операции");
+            dbHelper = new DBHelper(context);
+            db = dbHelper.getReadableDatabase();
+
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             running = true;
-            dialog.setMessage("Получение данных с глюкометра");
+            //dialog.setMessage("Получение данных с глюкометра");
             dialog.setCanceledOnTouchOutside(true);
-            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    running = false;
-                }
-            });
+//            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+//                @Override
+//                public void onCancel(DialogInterface dialog) {
+//                    running = false;
+//                }
+//            });
             dialog.show();
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
-            int i = 10;
-            while(running){
-                if(i>=0){
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    publishProgress(i);
-                    i--;
-                }
-                else{
-                    running=false;
-                }
-            }
+        protected Cursor doInBackground(Void... params) {
+//            int i = 10;
+//            while(running){
+//                if(i>=0){
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    publishProgress(i);
+//                    i--;
+//                }
+//                else{
+//                    running=false;
+//                }
+//            }
             //return getGlucometerRecordCount();
-            return null;
+            cursor = db.query("main",new String[]{"id","last_name","first_name"},null,null,null,null,null);
+            return cursor;
         }
-
-
-
-
 
         @Override
         protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
+            //super.onProgressUpdate(values);
             dialog.setMessage("Значение "+String.valueOf(values[0]));
         }
 
         @Override
-        protected void onPostExecute(Void value) {
+        protected void onPostExecute(Cursor value) {
+            super.onPostExecute(value);
 //            if(value>0) {
 //                mMessage.setText("Получено " + value + " записей");
 //            }

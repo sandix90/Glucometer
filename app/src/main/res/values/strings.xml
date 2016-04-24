@@ -91,4 +91,26 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="action_settings">Settings</string>
+    <string name="email">E-mail</string>
+    <string name="age">Возраст</string>
+    <string name="phone_num">Телефон</string>
+    <string name="name">Имя</string>
+    <string name="last_name">Фамилия</string>
+    <string name="middle_name">Отчество</string>
+    <string-array name="gender_list">
+        <item>Мужской</item>
+        <item>Женский</item>
+    </string-array>
+    <string-array name="therapy_type">
+        <item>Инсулин</item>
+        <item>Инсулин + таблетки</item>
+        <item>Таблетки</item>
+        <item>Диета + физкультура</item>
+    </string-array>
+    <string-array name="diabets_type">
+        <item>1-ый тип</item>
+        <item>2-ой тип</item>
+        <item>Гестационный</item>
+        <item>Другой</item>
+    </string-array>
 </resources>

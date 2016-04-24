@@ -27,8 +27,13 @@
                 android:resource="@xml/device_filter"/>
         </activity>
         <activity
-            android:name=".ClientForm"
+            android:name=".DetailedInfoClientForm"
             android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".EditClientForm"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="stateHidden">
         </activity>
 
         <!--

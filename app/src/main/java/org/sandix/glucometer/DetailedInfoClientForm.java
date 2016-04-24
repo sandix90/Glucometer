@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Created by sandakov.a on 12.04.2016.
  */
-public class ClientForm extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class DetailedInfoClientForm extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     RecyclerView mainRecyclerView;
     DBHelper dbHelper;
