@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import org.sandix.glucometer.beans.UserBean;
+
 /**
  * Created by sandakov.a on 18.04.2016.
  */
@@ -49,8 +51,10 @@ public class DB {
 
     }
 
-    public Cursor getUserDataById(int user_id){
-        return mDB.query("main",null,null,null,null,null,null);
+    public UserBean getUserDataById(int user_id){
+
+        Cursor c = mDB.query("main",null,null,null,null,null,null);
+        return new UserBean();
 
     }
 }

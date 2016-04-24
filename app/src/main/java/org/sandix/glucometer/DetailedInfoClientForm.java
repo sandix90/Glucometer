@@ -26,6 +26,7 @@ import org.sandix.glucometer.db.DBHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by sandakov.a on 12.04.2016.
@@ -85,6 +86,13 @@ public class DetailedInfoClientForm extends AppCompatActivity {
         if(id_to_open!=-1){
             AsyncTask task = new AsyncDbRequest(context);
             task.execute(id_to_open);
+            try {
+                UserBean userBean = (UserBean)task.get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -102,8 +110,10 @@ public class DetailedInfoClientForm extends AppCompatActivity {
         protected UserBean doInBackground(Integer... params) {
             DB db = new DB(context);
             db.open();
+            UserBean userBean = db.getUserDataById(params[0]);
 
-            return null;
+
+            return userBean;
         }
     }
 
