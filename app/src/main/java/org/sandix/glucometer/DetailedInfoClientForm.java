@@ -1,8 +1,10 @@
 package org.sandix.glucometer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -18,6 +20,8 @@ import android.view.View;
 import org.sandix.glucometer.adapters.UserInfoAdapter;
 import org.sandix.glucometer.beans.Bean;
 
+import org.sandix.glucometer.beans.UserBean;
+import org.sandix.glucometer.db.DB;
 import org.sandix.glucometer.db.DBHelper;
 
 import java.util.ArrayList;
@@ -26,13 +30,11 @@ import java.util.List;
 /**
  * Created by sandakov.a on 12.04.2016.
  */
-public class DetailedInfoClientForm extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class DetailedInfoClientForm extends AppCompatActivity {
 
     RecyclerView mainRecyclerView;
-    DBHelper dbHelper;
-    SQLiteDatabase db;
-    int user_id;
     Context context;
+    int id_to_open;
 
 
     @Override
@@ -51,31 +53,16 @@ public class DetailedInfoClientForm extends AppCompatActivity implements LoaderM
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mainRecyclerView = (RecyclerView) findViewById(R.id.mainRecyclerView);
-
-        dbHelper = new DBHelper(this);
-        db = dbHelper.getWritableDatabase();
-
-        //TODO: need to receive user_id from intent
-        user_id =0;
         context = this;
-        //getSupportLoaderManager().initLoader(0,null,this);
-        DbAsyncTaskLoader taskLoader = new DbAsyncTaskLoader(this);
-        taskLoader.registerListener(0, new android.content.Loader.OnLoadCompleteListener<List<Bean>>() {
-            @Override
-            public void onLoadComplete(android.content.Loader<List<Bean>> loader, List<Bean> data) {
-                mainRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-                UserInfoAdapter adapter = new UserInfoAdapter(context, data);
-                mainRecyclerView.setAdapter(adapter);
-            }
-        });
-        taskLoader.startLoading();
+        if(getIntent().hasExtra("user_id")){
+            id_to_open = getIntent().getIntExtra("user_id",-1);
+            openUser();
 
-//        DB mdb = new DB(this);
-//        mdb.open();
-//        mdb.addRecord();
-//        mdb.close();
+        }
 
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -88,51 +75,35 @@ public class DetailedInfoClientForm extends AppCompatActivity implements LoaderM
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new MyCursorLoader(this,db,user_id);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        List<String> mDatas = new ArrayList<>();
-        if(data.moveToFirst()){
-            do{
-
-                mDatas.add(data.getString(data.getColumnIndex("phone")));
-                mDatas.add(data.getString(data.getColumnIndex("email")));
-            }while(data.moveToNext());
-        }
-
-        mainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //UserInfoAdapter adapter = new UserInfoAdapter(this,mDatas);
-        //mainRecyclerView.setAdapter(adapter);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        db.close();
     }
 
-    static class MyCursorLoader extends CursorLoader{
-        SQLiteDatabase db;
-        int user_id;
+    private void openUser() {
+        if(id_to_open!=-1){
+            AsyncTask task = new AsyncDbRequest(context);
+            task.execute(id_to_open);
+        }
 
-        public MyCursorLoader(Context context, SQLiteDatabase db, int user_id){
-            super(context);
-            this.db = db;
-            this.user_id = user_id;
+    }
+
+
+
+
+    class AsyncDbRequest extends AsyncTask<Integer,Void,UserBean>{
+        private Context context;
+        public AsyncDbRequest(Context context){
+            this.context = context;
         }
 
         @Override
-        public Cursor loadInBackground() {
-            Cursor c = db.query("main",null,null,null,null,null,null);
-            return c;
+        protected UserBean doInBackground(Integer... params) {
+            DB db = new DB(context);
+            db.open();
+
+            return null;
         }
     }
 

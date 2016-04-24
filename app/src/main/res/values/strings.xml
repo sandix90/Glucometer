@@ -94,9 +94,11 @@
     <string name="email">E-mail</string>
     <string name="age">Возраст</string>
     <string name="phone_num">Телефон</string>
-    <string name="name">Имя</string>
-    <string name="last_name">Фамилия</string>
+    <string name="name">* Имя</string>
+    <string name="last_name">* Фамилия</string>
     <string name="middle_name">Отчество</string>
+    <string name="serial_number">* Серийный номер</string>
+    <string name="comments">Комментарии</string>
     <string-array name="gender_list">
         <item>Мужской</item>
         <item>Женский</item>

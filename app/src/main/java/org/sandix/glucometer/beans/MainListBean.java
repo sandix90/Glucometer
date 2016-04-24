@@ -17,4 +17,8 @@ public class MainListBean {
     public String getName(){
         return last_name + " " + first_name;
     }
+
+    public int getId(){
+        return this.id;
+    }
 }

@@ -34,9 +34,7 @@
                     <ImageView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:src="@drawable/account"
-
-                        />
+                        android:src="@drawable/account_vector"/>
 
                     <EditText
                         android:id="@+id/last_name"
@@ -90,6 +88,29 @@
                     android:singleLine="true" />
 
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/diabetes_monitor52"/>
+
+                <EditText
+                    android:id="@+id/serial_number"
+                    android:inputType="textCapCharacters"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="25dp"
+                    android:hint="@string/serial_number"
+                    android:maxLength="25"
+                    android:singleLine="true" />
+
+
+            </LinearLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -124,7 +145,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginTop="15dp"
-                    android:src="@drawable/pill" />
+                    android:src="@drawable/pill_vector" />
 
                 <android.support.v7.widget.AppCompatSpinner
                     android:id="@+id/therapy_spinner"
@@ -146,10 +167,10 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginTop="15dp"
-                    android:src="@drawable/needle" />
+                    android:src="@drawable/spoonsofsugar52" />
 
                 <android.support.v7.widget.AppCompatSpinner
-                    android:id="@+id/diabets_spinner"
+                    android:id="@+id/diabetic_type_spinner"
                     style="@style/Base.Widget.AppCompat.Spinner.Underlined"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
@@ -199,6 +220,7 @@
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="10dp"
                     android:singleLine="false"
+                    android:inputType="textEmailAddress"
                     android:hint="@string/email" />
 
             </LinearLayout>
@@ -207,7 +229,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="50dp">
+                >
 
                 <ImageView
                     android:layout_width="40dp"
@@ -223,6 +245,28 @@
                     android:layout_marginTop="10dp"
                     android:hint="@string/phone_num"
                     android:inputType="phone" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="50dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="15dp"
+                    android:src="@drawable/comments_vector" />
+
+                <EditText
+                    android:id="@+id/comments"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginTop="10dp"
+                    android:hint="@string/comments"/>
 
             </LinearLayout>
 

@@ -2,6 +2,7 @@ package org.sandix.glucometer.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
@@ -25,22 +26,31 @@ public class DB {
         if(mDbHelper!=null)
             {mDB.close();}
     }
-    public void addRecord(){
+    public void addRecordToMainTable(String serial_number, String last_name, String first_name, String middle_name, int age, String therapy_type, String diabetic_type, String gender, String phone_num, String email, String comments){
         ContentValues cv = new ContentValues();
-        cv.put("serialnumber","CN25Jf874");
-        cv.put("last_name","Сандаков");
-        cv.put("first_name","Алексей");
-        cv.put("middle_name","Сергеевич");
-        cv.put("age",25);
-        cv.put("therapy_type","Без терапии");
-        cv.put("gender",true);
-        cv.put("phone","8-922-632-15-57");
-        cv.put("diabetes_type","Нет диабета");
-        cv.put("email","sandakov.aleksey65@gmail.com");
+        cv.put("serialnumber",serial_number);
+        cv.put("last_name",last_name);
+        cv.put("first_name",first_name);
+        cv.put("middle_name",middle_name);
+        cv.put("age",age);
+        cv.put("therapy_type",therapy_type);
+        if(gender.equals("Мужской")){
+            cv.put("gender",true);
+        }
+        else{
+            cv.put("gender",false);
+        }
+        cv.put("phone",phone_num);
+        cv.put("diabetes_type",diabetic_type);
+        cv.put("email",email);
+        cv.put("comments", comments);
+
         mDB.insert("main",null,cv);
 
+    }
 
-
+    public Cursor getUserDataById(int user_id){
+        return mDB.query("main",null,null,null,null,null,null);
 
     }
 }

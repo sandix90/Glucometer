@@ -9,31 +9,37 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.sandix.glucometer.db.DB;
+
 
 public class EditClientForm extends AppCompatActivity {
-    private EditText firstName,lastName,middleName;
-    private AppCompatSpinner genderSpinner,therapySpinner, diabetsSpinner;
+    private EditText firstNameEt,lastNameEt,middleNameEt, age, emailEt,phoneNumEt,serialNumberEt,commentsEt;
+    private AppCompatSpinner genderSpinner,therapySpinner, diabetSpinner;
+    private boolean isOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_clientform);
 
-        firstName = (EditText) findViewById(R.id.first_name);
-        lastName = (EditText) findViewById(R.id.last_name);
-        middleName = (EditText) findViewById(R.id.middle_name);
+        firstNameEt = (EditText) findViewById(R.id.first_name);
+        lastNameEt = (EditText) findViewById(R.id.last_name);
+        middleNameEt = (EditText) findViewById(R.id.middle_name);
+        serialNumberEt = (EditText)findViewById(R.id.serial_number);
+        commentsEt = (EditText)findViewById(R.id.comments);
+        age = (EditText)findViewById(R.id.age);
+        emailEt = (EditText)findViewById(R.id.email);
+        phoneNumEt = (EditText)findViewById(R.id.phone_num);
         genderSpinner = (AppCompatSpinner) findViewById(R.id.gender_spinner);
         therapySpinner = (AppCompatSpinner) findViewById(R.id.therapy_spinner);
-        diabetsSpinner = (AppCompatSpinner) findViewById(R.id.diabets_spinner);
+        diabetSpinner = (AppCompatSpinner) findViewById(R.id.diabetic_type_spinner);
         getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Создание данных клиента");
 
         genderSpinner.setAdapter(new ArrayAdapter<>(this,R.layout.spinner_row,R.id.tv_item,getResources().getStringArray(R.array.gender_list))) ;
         therapySpinner.setAdapter(new ArrayAdapter<>(this,R.layout.spinner_row, R.id.tv_item,getResources().getStringArray(R.array.therapy_type)));
-        diabetsSpinner.setAdapter(new ArrayAdapter<>(this,R.layout.spinner_row, R.id.tv_item,getResources().getStringArray(R.array.diabets_type)));
-
-
+        diabetSpinner.setAdapter(new ArrayAdapter<>(this,R.layout.spinner_row, R.id.tv_item,getResources().getStringArray(R.array.diabets_type)));
     }
 
 
@@ -45,11 +51,41 @@ public class EditClientForm extends AppCompatActivity {
                 finish();
                 break;
             case R.id.ok:
-                Toast.makeText(EditClientForm.this, "user created", Toast.LENGTH_SHORT).show();
+                if(!isOpen){
+                makeUserRecord();
+                }
+                //Toast.makeText(EditClientForm.this, "user created", Toast.LENGTH_SHORT).show();
                 break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void makeUserRecord() {
+
+        String last_name;
+        if(lastNameEt.getText().toString().equals("") ||
+                firstNameEt.getText().toString().equals("") ||
+                serialNumberEt.getText().toString().equals("")){
+            Toast.makeText(EditClientForm.this, "Проверьте заполнение обязательных полей ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        DB db = new DB(this);
+        db.open();
+        db.addRecordToMainTable("TEST_SN",
+                lastNameEt.getText().toString(),
+                firstNameEt.getText().toString(),
+                middleNameEt.getText().toString(),
+                Integer.parseInt(age.getText().toString()),
+                therapySpinner.getSelectedItem().toString(),
+                diabetSpinner.getSelectedItem().toString(),
+                genderSpinner.getSelectedItem().toString(),
+                phoneNumEt.getText().toString(),
+                emailEt.getText().toString(),
+                commentsEt.getText().toString());
+        db.close();
+        Toast.makeText(EditClientForm.this, "Запись успешно добавлена", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     @Override

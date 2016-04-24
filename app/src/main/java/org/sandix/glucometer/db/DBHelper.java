@@ -27,7 +27,8 @@ public class DBHelper extends SQLiteOpenHelper {
                         "gender boolean," +
                         "phone nvarchar(20)," +
                         "diabetes_type nvarchar(40)," +
-                        "email nvarchar(50)" +
+                        "email nvarchar(50)," +
+                        "comments text" +
                         ")";
         db.execSQL(main_tableQuery);
 

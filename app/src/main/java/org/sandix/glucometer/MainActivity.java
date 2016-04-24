@@ -29,6 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.sandix.glucometer.adapters.MainListUsersAdapter;
 import org.sandix.glucometer.beans.MainListBean;
 import org.sandix.glucometer.db.DBHelper;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
@@ -170,6 +171,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         do{
                             mData.add(new MainListBean(c.getInt(c.getColumnIndex("id")),c.getString(c.getColumnIndex("last_name")),c.getString(c.getColumnIndex("first_name"))));
                         }while(c.moveToNext());
+                        MainListUsersAdapter adapter = new MainListUsersAdapter(this, mData);
+                        main_list.setAdapter(adapter);
+
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -245,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         protected void onPreExecute() {
             super.onPreExecute();
             running = true;
-            //dialog.setMessage("Получение данных с глюкометра");
+            //dialog.setMessage("Получение данных из БД");
             dialog.setCanceledOnTouchOutside(true);
 //            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
 //                @Override
