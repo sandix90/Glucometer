@@ -30,15 +30,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.sandix.glucometer.adapters.MainListUsersAdapter;
+import org.sandix.glucometer.asyncTasks.AsyncGlucometerExecutor;
 import org.sandix.glucometer.beans.MainListBean;
 import org.sandix.glucometer.db.DBHelper;
+import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AsyncTaskCompleteListener {
     UsbManager mUsbManager;
     ListView deviceList;
     Button refreshBtn, getInfoBtn;
@@ -155,32 +157,56 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = item.getItemId();
         switch (id){
             case R.id.getsn:
+                AsyncGlucometerExecutor executor = new AsyncGlucometerExecutor(this, AsyncGlucometerExecutor.SERIAL_NUMBER, mUsbDevice,mUsbDeviceConnection);
+                executor.setAsyncTaskCompleteListener(this);
+                executor.execute();
+//                try {
+//                    String sn = (String)executor.get();
+//                    mMessage.setText("SN: "+sn);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ExecutionException e) {
+//                    e.printStackTrace();
+//                }
                 //MyAsyncTask t = new MyAsyncTask(MainActivity.this);
-                getGlucometerSN();
+                //getGlucometerSN();
                 break;
             case R.id.getfirstrecord:
-                getGlucometerRecord();
+                //getGlucometerRecord();
                 break;
             case R.id.getrecordscount:
-                AsyncGlucometerExecutor task = new AsyncGlucometerExecutor(this);
-                task.execute();
-                try {
-                    Cursor c = task.get();
+                AsyncGlucometerExecutor executor1 = new AsyncGlucometerExecutor(this, AsyncGlucometerExecutor.VALUES_COUNT, mUsbDevice, mUsbDeviceConnection);
+                executor1.setAsyncTaskCompleteListener(this);
+                executor1.execute();
+//                try {
+//                    int count = (int)executor1.get();
+//                    mMessage.setText("count: "+count);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ExecutionException e) {
+//                    e.printStackTrace();
+//                }
 
-                    List<MainListBean> mData = new ArrayList<>();
-                    if(c.moveToFirst()){
-                        do{
-                            mData.add(new MainListBean(c.getInt(c.getColumnIndex("id")),c.getString(c.getColumnIndex("last_name")),c.getString(c.getColumnIndex("first_name"))));
-                        }while(c.moveToNext());
-                        MainListUsersAdapter adapter = new MainListUsersAdapter(this, mData);
-                        main_list.setAdapter(adapter);
 
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
+//                AsyncGlucometerExecutor1 task = new AsyncGlucometerExecutor1(this);
+//                task.execute();
+//                try {
+//                    Cursor c = task.get();
+//
+//                    List<MainListBean> mData = new ArrayList<>();
+//                    if(c.moveToFirst()){
+//                        do{
+//                            mData.add(new MainListBean(c.getInt(c.getColumnIndex("id")),c.getString(c.getColumnIndex("last_name")),c.getString(c.getColumnIndex("first_name"))));
+//                        }while(c.moveToNext());
+//                        MainListUsersAdapter adapter = new MainListUsersAdapter(this, mData);
+//                        main_list.setAdapter(adapter);
+//
+//                    }
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ExecutionException e) {
+//                    e.printStackTrace();
+//                }
 
                 //getGlucometerRecordCount();
                 break;
@@ -188,46 +214,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
-    private void getGlucometerSN(){
-        if(mUsbDevice!=null){
-            glucometerDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice, mUsbDeviceConnection);
-            if(glucometerDevice!=null) {
-                glucometerDevice.open();
-                mMessage.setText("SN: " + glucometerDevice.getSN());
-                glucometerDevice.close();
-            }
+    @Override
+    public void onTaskComplete(Object result, int request_type) {
+        switch (request_type){
+            case AsyncGlucometerExecutor.SERIAL_NUMBER:
+                mMessage.setText("SN: "+result.toString());
+                break;
+            case AsyncGlucometerExecutor.VALUES_COUNT:
+                mMessage.setText("Count: "+String.valueOf(result));
+                break;
+            case AsyncGlucometerExecutor.VALUE:
+                //mMessage.setText("Value: "+(String[])result[0]+" "+(String[])result[1]);
+                break;
         }
     }
 
-    private void getGlucometerRecord(){
-        if(mUsbDevice!=null){
-            glucometerDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
-            if(glucometerDevice!=null) {
-                glucometerDevice.open();
-                String[] str;
-                str = glucometerDevice.getRecord(0);
-                Log.d("MainAct", "Str length: " + str.length);
-                mMessage.setText("Data: " + str[0] + " Value: " + str[1]);
-                glucometerDevice.close();
-            }
-        }
-    }
 
-    private int getGlucometerRecordCount(){
-        if(mUsbDevice!=null) {
-            glucometerDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice, mUsbDeviceConnection);
-            if (glucometerDevice != null) {
-                glucometerDevice.open();
-                int count = glucometerDevice.getRecordsCount();
-                // mMessage.setText("Count: " + String.valueOf(glucometerDevice.getRecordsCount()));
-                glucometerDevice.close();
-                return count;
-            }
-        }
-        return -1;
-    }
-
-    class AsyncGlucometerExecutor extends AsyncTask<Void,Integer,Cursor>{
+    class AsyncGlucometerExecutor1 extends AsyncTask<Void,Integer,Cursor>{
         private ProgressDialog dialog;
         private boolean running;
         private Context context;
@@ -236,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         private SQLiteDatabase db;
 
 
-        public AsyncGlucometerExecutor(Context context){
+        public AsyncGlucometerExecutor1(Context context){
             this.context = context;
             dialog = new ProgressDialog(context);
             dialog.setCanceledOnTouchOutside(true);
