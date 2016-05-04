@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 task.execute();
                 try {
                     Cursor c = task.get();
+
                     List<MainListBean> mData = new ArrayList<>();
                     if(c.moveToFirst()){
                         do{
@@ -278,7 +279,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                }
 //            }
             //return getGlucometerRecordCount();
-            cursor = db.query("main",new String[]{"id","last_name","first_name"},null,null,null,null,null);
+            cursor = db.query("main",new String[]{"id","last_name","first_name","serial_number"},null,null,null,null,null);
+
             return cursor;
         }
 

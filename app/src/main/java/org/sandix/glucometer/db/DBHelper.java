@@ -26,7 +26,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         "therapy_type nvarchar(50)," +
                         "gender boolean," +
                         "phone nvarchar(20)," +
-                        "diabetes_type nvarchar(40)," +
+                        "diabetic_type nvarchar(40)," +
                         "email nvarchar(50)," +
                         "comments text" +
                         ")";

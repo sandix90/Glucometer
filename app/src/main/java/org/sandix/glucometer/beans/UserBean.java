@@ -23,7 +23,7 @@ public class UserBean {
     private List<GlBean> glBeanList;
 
     public UserBean(int id, String serial_number, String last_name, String first_name, String middle_name, int age,  String email, String therapy_type,
-                    String diabetic_type, String phone, String gender, String comments, List<GlBean> glBeanList){
+                    String diabetic_type, String phone, String gender, String comments){
         this.id = id;
         this.serial_number = serial_number;
         this.last_name = last_name;
@@ -36,12 +36,62 @@ public class UserBean {
         this.phone = phone;
         this.gender = gender;
         this.comments = comments;
-        this.glBeanList = glBeanList;
-
-
-
 
     }
 
+    public void setGlBeanList(List<GlBean> glBeanList) {
+        this.glBeanList = glBeanList;
+    }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getSerial_number() {
+        return serial_number;
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+
+    public String getFirst_name() {
+        return first_name;
+    }
+
+    public String getMiddle_name() {
+        return middle_name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getTherapy_type() {
+        return therapy_type;
+    }
+
+    public String getDiabetic_type() {
+        return diabetic_type;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public List<GlBean> getGlBeanList() {
+        return glBeanList;
+    }
 }

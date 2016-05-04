@@ -46,6 +46,7 @@ public class MainListUsersAdapter extends RecyclerView.Adapter<MainListUserViewH
     public void onBindViewHolder(MainListUserViewHolder holder, int position) {
         holder.userInfoTv.setText(mUserInfoBeanList.get(position).getName());
         holder.userInfoTv.setId(mUserInfoBeanList.get(position).getId());
+        //holder.userInfoTv.setTag(mUserInfoBeanList.get(position).get);
 
 
     }
