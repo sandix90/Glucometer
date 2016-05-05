@@ -28,7 +28,6 @@ public class MainListUserViewHolder extends RecyclerView.ViewHolder implements V
         if(v instanceof TextView){
             mListener.onClick(v);
         }
-
     }
 
     public interface OnViewHolderClickListener{

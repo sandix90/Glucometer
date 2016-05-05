@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import org.sandix.glucometer.DetailedInfoClientForm;
 import org.sandix.glucometer.R;
 import org.sandix.glucometer.beans.MainListBean;
+import org.sandix.glucometer.beans.UserBean;
 import org.sandix.glucometer.viewHolders.MainListUserViewHolder;
 
 import java.util.List;
@@ -18,12 +19,12 @@ import java.util.List;
  * Created by Alex on 24.04.2016.
  */
 public class MainListUsersAdapter extends RecyclerView.Adapter<MainListUserViewHolder> {
-    private List<MainListBean> mUserInfoBeanList;
+    private List<UserBean> mUserInfoBeanList;
     private LayoutInflater mLayoutInflater;
     private Context context;
 
 
-    public MainListUsersAdapter(Context context, List<MainListBean> userInfoBeanList){
+    public MainListUsersAdapter(Context context, List<UserBean> userInfoBeanList){
         this.mUserInfoBeanList = userInfoBeanList;
         mLayoutInflater = mLayoutInflater.from(context);
         this.context = context;
@@ -44,7 +45,7 @@ public class MainListUsersAdapter extends RecyclerView.Adapter<MainListUserViewH
 
     @Override
     public void onBindViewHolder(MainListUserViewHolder holder, int position) {
-        holder.userInfoTv.setText(mUserInfoBeanList.get(position).getName());
+        holder.userInfoTv.setText(mUserInfoBeanList.get(position).getFIO());
         holder.userInfoTv.setId(mUserInfoBeanList.get(position).getId());
         //holder.userInfoTv.setTag(mUserInfoBeanList.get(position).get);
 

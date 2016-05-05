@@ -1,5 +1,16 @@
 package org.sandix.glucometer;
 
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
+import android.widget.Toast;
+
+import org.sandix.glucometer.db.DB;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,6 +68,10 @@ public class tools {
         }
         return data;
 
+    }
+
+    public static String getAppDirectory(){
+        return Environment.getExternalStorageDirectory().getAbsolutePath()+"/glucomaster/";
     }
 
 }

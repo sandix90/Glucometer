@@ -49,7 +49,7 @@ public class DB {
             cv.put("gender",false);
         }
         cv.put("phone",phone_num);
-        cv.put("diabetes_type",diabetic_type);
+        cv.put("diabetic_type",diabetic_type);
         cv.put("email",email);
         cv.put("comments", comments);
 
@@ -74,7 +74,7 @@ public class DB {
 
         Cursor c = mDB.rawQuery("SELECT * FROM main WHERE id = "+user_id+";", null);
         if(c.moveToFirst()){
-            userBean =  new UserBean(user_id, c.getString(c.getColumnIndex("serial_number")),
+            userBean =  new UserBean(user_id, c.getString(c.getColumnIndex("serialnumber")),
                     c.getString(c.getColumnIndex("last_name")),
                     c.getString(c.getColumnIndex("first_name")),
                     c.getString(c.getColumnIndex("middle_name")),
@@ -103,5 +103,14 @@ public class DB {
         }
         return userBean;
 
+    }
+
+    public Cursor stringQuery(String request){
+        return mDB.rawQuery(request,null);
+    }
+
+    public Cursor getAllUsers(){
+
+        return  mDB.query("main",null,null,null,null,null,null);
     }
 }

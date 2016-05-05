@@ -91,7 +91,11 @@ public class UserBean {
         return gender;
     }
 
+    public String getFIO() { return last_name + " "+ first_name;}
+
     public List<GlBean> getGlBeanList() {
         return glBeanList;
     }
+
+
 }

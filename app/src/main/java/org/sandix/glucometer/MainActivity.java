@@ -1,5 +1,6 @@
 package org.sandix.glucometer;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,7 +15,9 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,11 +33,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.sandix.glucometer.adapters.MainListUsersAdapter;
+import org.sandix.glucometer.asyncTasks.AsyncDbExecutor;
 import org.sandix.glucometer.asyncTasks.AsyncGlucometerExecutor;
 import org.sandix.glucometer.beans.MainListBean;
+import org.sandix.glucometer.beans.UserBean;
+import org.sandix.glucometer.db.DB;
 import org.sandix.glucometer.db.DBHelper;
 import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -52,10 +64,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     PendingIntent mPermissionIntent;
     RecyclerView main_list;
     FloatingActionButton fab;
+    LinearLayoutManager llm;
 //    android.os.Handler h;
 
     private static final String ACTION_USB_PERMISSION =
             "org.sandix.glucometer.USB_PERMISSION";
+
+
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,16 +89,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getInfoBtn = (Button) findViewById(R.id.get_info);
         getInfoBtn.setOnClickListener(this);
         main_list = (RecyclerView) findViewById(R.id.main_list);
-        main_list.setLayoutManager(new LinearLayoutManager(this));
+        llm = new LinearLayoutManager(this);
+        main_list.setLayoutManager(llm);
         fab = (FloatingActionButton) findViewById(R.id.add_user);
-
         fab.setOnClickListener(this);
 
+        getUsersInfo();
+        //ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
+        //backupDataBase("backup");
 
         mUsbDevice = getIntent().getParcelableExtra(mUsbManager.EXTRA_DEVICE);
         if(mUsbDevice != null){
             Toast.makeText(MainActivity.this, "mUsbDevice:" +mUsbDevice.toString() +", VID: "+mUsbDevice.getVendorId()+" PID:"+mUsbDevice.getProductId(), Toast.LENGTH_SHORT).show();
             mUsbDeviceConnection = mUsbManager.openDevice(mUsbDevice);
+            //TODO: Здесь будет вызываться функция автоматического получения инфы с глюкометра
         }
 
         mPermissionIntent = PendingIntent.getBroadcast(this,0,new Intent(ACTION_USB_PERMISSION),0);
@@ -87,6 +110,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 
+    }
+
+    private void getUsersInfo() {
+        AsyncDbExecutor dbExecutor = new AsyncDbExecutor(this); //Без доп. аргументов, значит вытащить всех пользователей. см.AsyncDbExecutor
+        dbExecutor.setOnTaskCompleteListener(this);
+        dbExecutor.execute(); //В классе вызывается event onTaskComplete(obj, type) тип запроса.
     }
 
     private void tmp(){
@@ -160,16 +189,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 AsyncGlucometerExecutor executor = new AsyncGlucometerExecutor(this, AsyncGlucometerExecutor.SERIAL_NUMBER, mUsbDevice,mUsbDeviceConnection);
                 executor.setAsyncTaskCompleteListener(this);
                 executor.execute();
-//                try {
-//                    String sn = (String)executor.get();
-//                    mMessage.setText("SN: "+sn);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                } catch (ExecutionException e) {
-//                    e.printStackTrace();
-//                }
-                //MyAsyncTask t = new MyAsyncTask(MainActivity.this);
-                //getGlucometerSN();
                 break;
             case R.id.getfirstrecord:
                 //getGlucometerRecord();
@@ -226,9 +245,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case AsyncGlucometerExecutor.VALUE:
                 //mMessage.setText("Value: "+(String[])result[0]+" "+(String[])result[1]);
                 break;
+            case AsyncDbExecutor.DB_TASK_SELECT_ALL:
+                Cursor all_users_cursor = (Cursor)result;
+                List<UserBean> userBeanList = new ArrayList<>();
+                if(all_users_cursor!=null) {
+                    if (all_users_cursor.moveToFirst()) {
+                        do {
+                            userBeanList.add(new UserBean(all_users_cursor.getInt(all_users_cursor.getColumnIndex("id")),
+                                    all_users_cursor.getString(all_users_cursor.getColumnIndex("serialnumber")),
+                                    all_users_cursor.getString(all_users_cursor.getColumnIndex("last_name")),
+                                    all_users_cursor.getString(all_users_cursor.getColumnIndex("first_name")),
+                                    all_users_cursor.getString(all_users_cursor.getColumnIndex("middle_name")),
+                                    all_users_cursor.getInt(all_users_cursor.getColumnIndex("age")),
+                                    all_users_cursor.getString(all_users_cursor.getColumnIndex("email")),
+                                    all_users_cursor.getString(all_users_cursor.getColumnIndex("therapy_type")),
+                                    all_users_cursor.getString(all_users_cursor.getColumnIndex("diabetic_type")),
+                                    all_users_cursor.getString(all_users_cursor.getColumnIndex("phone")),
+                                    all_users_cursor.getInt(all_users_cursor.getColumnIndex("gender")) == 1 ? "Мужской" : "Женский",
+                                    all_users_cursor.getString(all_users_cursor.getColumnIndex("comments"))
+                            ));
+                        } while (all_users_cursor.moveToNext());
+
+                        MainListUsersAdapter listUsersAdapter = new MainListUsersAdapter(this, userBeanList);
+                        main_list.setAdapter(listUsersAdapter);
+                    }
+                }
+                break;
+            case AsyncDbExecutor.DB_TASK_WITH_CONDITION:
+                break;
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
 
     class AsyncGlucometerExecutor1 extends AsyncTask<Void,Integer,Cursor>{
         private ProgressDialog dialog;
@@ -310,7 +362,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public void backupDataBase(String _filename) {
 
+
+        DBHelper dbHelper= new DBHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        File dbFile = new File(db.getPath());
+        File backupDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),"Glucomaster");
+        File backupFile = new File(backupDir,_filename+".backup");
+        if(!backupDir.exists()){
+            backupDir.mkdirs();
+        }
+        try {
+            FileChannel source = new FileInputStream(dbFile).getChannel();
+            FileChannel destination = new FileOutputStream(backupFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+            source.close();
+            destination.close();
+            //Toast.makeText(context,"Erfolgreich!",Toast.LENGTH_SHORT).show();
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
 
 

@@ -72,7 +72,7 @@ public class EditClientForm extends AppCompatActivity {
         }
         DB db = new DB(this);
         db.open();
-        db.addRecordToMainTable("TEST_SN",
+        db.addRecordToMainTable(serialNumberEt.getText().toString(),
                 lastNameEt.getText().toString(),
                 firstNameEt.getText().toString(),
                 middleNameEt.getText().toString(),
