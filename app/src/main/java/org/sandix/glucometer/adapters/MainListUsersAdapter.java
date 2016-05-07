@@ -56,4 +56,9 @@ public class MainListUsersAdapter extends RecyclerView.Adapter<MainListUserViewH
     public int getItemCount() {
         return mUserInfoBeanList.size();
     }
+
+    @Override
+    public long getItemId(int position) {
+        return super.getItemId(position);
+    }
 }
