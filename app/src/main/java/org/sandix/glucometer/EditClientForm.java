@@ -66,7 +66,8 @@ public class EditClientForm extends AppCompatActivity {
         String last_name;
         if(lastNameEt.getText().toString().equals("") ||
                 firstNameEt.getText().toString().equals("") ||
-                serialNumberEt.getText().toString().equals("")){
+                serialNumberEt.getText().toString().equals("") ||
+                age.getText().toString().contentEquals("")){
             Toast.makeText(EditClientForm.this, "Проверьте заполнение обязательных полей ", Toast.LENGTH_SHORT).show();
             return;
         }

@@ -32,7 +32,6 @@
                 android:layout_weight="2"
                 android:text="8-922-632-15-57"/>
         </TableRow>
-
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,6 +45,7 @@
                 android:layout_weight="2"
                 android:src="@drawable/line"/>
         </TableRow>
+
         <TableRow
             android:layout_marginTop="15dp"
             android:layout_width="match_parent"
@@ -67,7 +67,6 @@
                 android:layout_weight="2"
                 android:text="мужской"/>
         </TableRow>
-
         <TableRow
             android:layout_marginTop="15dp">
 
@@ -79,6 +78,7 @@
                 android:layout_weight="2"
                 android:src="@drawable/line"/>
         </TableRow>
+
         <TableRow
             android:layout_marginTop="15dp"
             android:layout_width="match_parent"
@@ -94,14 +94,14 @@
             <TextView
                 android:id="@+id/email"
                 android:maxWidth="100dp"
-
+                android:ellipsize="end"
+                android:singleLine="true"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:textSize="20dp"
                 android:layout_weight="2"
                 android:text="sandakov.aleksey65@gmail.com"/>
         </TableRow>
-
         <TableRow
             android:layout_marginTop="15dp">
 

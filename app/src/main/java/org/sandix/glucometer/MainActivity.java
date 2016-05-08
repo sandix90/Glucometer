@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 
@@ -17,12 +16,10 @@ import android.hardware.usb.UsbManager;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,9 +32,7 @@ import android.widget.Toast;
 import org.sandix.glucometer.adapters.MainListUsersAdapter;
 import org.sandix.glucometer.asyncTasks.AsyncDbExecutor;
 import org.sandix.glucometer.asyncTasks.AsyncGlucometerExecutor;
-import org.sandix.glucometer.beans.MainListBean;
 import org.sandix.glucometer.beans.UserBean;
-import org.sandix.glucometer.db.DB;
 import org.sandix.glucometer.db.DBHelper;
 import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
@@ -49,8 +44,6 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, AsyncTaskCompleteListener {
     UsbManager mUsbManager;
@@ -100,8 +93,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mUsbDevice = getIntent().getParcelableExtra(mUsbManager.EXTRA_DEVICE);
         if(mUsbDevice != null){
-            Toast.makeText(MainActivity.this, "mUsbDevice:" +mUsbDevice.toString() +", VID: "+mUsbDevice.getVendorId()+" PID:"+mUsbDevice.getProductId(), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "mUsbDevice:" +mUsbDevice.toString() +", VID: "+mUsbDevice.getVendorId()+" PID:"+mUsbDevice.getProductId(), Toast.LENGTH_SHORT).show();
             mUsbDeviceConnection = mUsbManager.openDevice(mUsbDevice);
+            synchronize();
             //TODO: Здесь будет вызываться функция автоматического получения инфы с глюкометра
         }
 
@@ -111,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 
     }
+
+
 
     private void getUsersInfo() {
         AsyncDbExecutor dbExecutor = new AsyncDbExecutor(this); //Без доп. аргументов, значит вытащить всех пользователей. см.AsyncDbExecutor
@@ -267,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         } while (all_users_cursor.moveToNext());
 
                         MainListUsersAdapter listUsersAdapter = new MainListUsersAdapter(this, userBeanList);
+                        listUsersAdapter.setHasStableIds(true);
                         main_list.setAdapter(listUsersAdapter);
                     }
                 }
@@ -282,83 +279,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    class AsyncGlucometerExecutor1 extends AsyncTask<Void,Integer,Cursor>{
-        private ProgressDialog dialog;
-        private boolean running;
-        private Context context;
-        private Cursor cursor;
-        private DBHelper dbHelper;
-        private SQLiteDatabase db;
 
-
-        public AsyncGlucometerExecutor1(Context context){
-            this.context = context;
-            dialog = new ProgressDialog(context);
-            dialog.setCanceledOnTouchOutside(true);
-            //dialog.setTitle("Выполнение ассинхронной операции");
-            dbHelper = new DBHelper(context);
-            db = dbHelper.getReadableDatabase();
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            running = true;
-            //dialog.setMessage("Получение данных из БД");
-            dialog.setCanceledOnTouchOutside(true);
-//            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-//                @Override
-//                public void onCancel(DialogInterface dialog) {
-//                    running = false;
-//                }
-//            });
-            dialog.show();
-        }
-
-        @Override
-        protected Cursor doInBackground(Void... params) {
-//            int i = 10;
-//            while(running){
-//                if(i>=0){
-//                    try {
-//                        Thread.sleep(1000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                    publishProgress(i);
-//                    i--;
-//                }
-//                else{
-//                    running=false;
-//                }
-//            }
-            //return getGlucometerRecordCount();
-            cursor = db.query("main",new String[]{"id","last_name","first_name","serial_number"},null,null,null,null,null);
-
-            return cursor;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            //super.onProgressUpdate(values);
-            dialog.setMessage("Значение "+String.valueOf(values[0]));
-        }
-
-        @Override
-        protected void onPostExecute(Cursor value) {
-            super.onPostExecute(value);
-//            if(value>0) {
-//                mMessage.setText("Получено " + value + " записей");
-//            }
-//            else{
-//                mMessage.setText("Ошибка чтения количества записей с устройства");
-//            }
-            Toast.makeText(context,"Операция завершена", Toast.LENGTH_LONG).show();
-            dialog.dismiss();
-
-        }
-
+    private void synchronize() {
+        AsyncGlucometerExecutor exec = new AsyncGlucometerExecutor(this, AsyncGlucometerExecutor.SERIAL_NUMBER,mUsbDevice,mUsbDeviceConnection);
+        exec.setAsyncTaskCompleteListener(new AsyncTaskCompleteListener() {
+            @Override
+            public void onTaskComplete(Object result, int request_type) {
+                mMessage.setText((String)result);
+            }
+        });
+        exec.execute();
 
     }
 

@@ -1,5 +1,7 @@
 package org.sandix.glucometer.beans;
 
+import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.microedition.khronos.opengles.GL;
@@ -7,7 +9,7 @@ import javax.microedition.khronos.opengles.GL;
 /**
  * Created by Alex on 24.04.2016.
  */
-public class UserBean {
+public class UserBean implements Comparable, Serializable {
     private int id;
     private String serial_number;
     private String last_name;
@@ -97,5 +99,9 @@ public class UserBean {
         return glBeanList;
     }
 
-
+    @Override
+    public int compareTo(Object another) {
+        UserBean sec_obj = (UserBean)another;
+        return getFIO().compareToIgnoreCase(sec_obj.getFIO());
+    }
 }

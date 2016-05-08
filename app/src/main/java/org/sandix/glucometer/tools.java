@@ -12,8 +12,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -72,6 +74,12 @@ public class tools {
 
     public static String getAppDirectory(){
         return Environment.getExternalStorageDirectory().getAbsolutePath()+"/glucomaster/";
+    }
+
+    public static String getTimeStamp(){
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss.SSS");
+        Date date = new Date();
+        return df.format(date);
     }
 
 }

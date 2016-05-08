@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/content_detailed_ll"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+
+    android:orientation="vertical"
+    >
+
+    <TableLayout
+        android:background="@drawable/frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp">
+
+        <TableRow
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_height="26dp"
+                android:layout_width="24dp"
+                android:layout_weight="1"
+                android:src="@drawable/spoonsofsugar52"/>
+
+            <TextView
+                android:id="@+id/diabetic_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:layout_weight="2"
+                android:text="тип диабета"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <View android:layout_height="1dp" android:layout_weight="1"/>
+
+            <ImageView
+
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_weight="2"
+                android:src="@drawable/line"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_height="26dp"
+                android:layout_width="24dp"
+                android:layout_weight="1"
+                android:src="@drawable/pill_vector"/>
+
+            <TextView
+                android:id="@+id/therapy_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:layout_weight="2"
+                android:text="тип терапии"
+                />
+        </TableRow>
+        <TableRow
+            android:layout_marginTop="15dp">
+
+            <View android:layout_height="1dp" android:layout_weight="1"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_weight="2"
+                android:src="@drawable/line"/>
+        </TableRow>
+
+
+
+        <TableRow
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true">
+
+            <ImageView
+                style="@style/ImageViewStyle"
+                android:layout_weight="1"
+                android:src="@drawable/ic_human_black_36dp"/>
+
+            <TextView
+                android:id="@+id/age"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:layout_weight="2"
+                android:text="возраст"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <View android:layout_height="1dp" android:layout_weight="1"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_weight="2"
+                android:src="@drawable/line"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_height="26dp"
+                android:layout_width="24dp"
+                android:layout_weight="1"
+                android:src="@mipmap/male_and_female_sign"/>
+
+            <TextView
+                android:id="@+id/gender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:layout_weight="2"
+                android:text="мужской"/>
+        </TableRow>
+        <TableRow
+            android:layout_marginTop="15dp">
+
+            <View android:layout_height="1dp" android:layout_weight="1"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_weight="2"
+                android:src="@drawable/line"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_weight="1"
+                android:src="@mipmap/ic_call_black_24dp"/>
+
+            <TextView
+                android:id="@+id/phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textSize="20sp"
+                android:layout_weight="2"
+                android:text="телефон"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <View android:layout_height="1dp" android:layout_weight="1"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_weight="2"
+                android:src="@drawable/line"/>
+        </TableRow>
+
+
+
+
+
+        <TableRow
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true">
+
+        <ImageView
+            android:layout_height="26dp"
+            android:layout_width="24dp"
+            android:layout_weight="1"
+            android:src="@drawable/ic_email_black_24dp"/>
+
+        <TextView
+            android:id="@+id/email"
+            android:maxWidth="100dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textSize="20sp"
+            android:layout_weight="2"
+
+            android:text="sandakov.aleksey65@gmail.com"/>
+    </TableRow>
+        <TableRow
+            android:layout_marginTop="15dp">
+
+            <View android:layout_height="1dp" android:layout_weight="1"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_weight="2"
+                android:src="@drawable/line"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_height="26dp"
+                android:layout_width="24dp"
+                android:layout_weight="1"
+                android:src="@drawable/comments_vector"/>
+
+            <TextView
+                android:id="@+id/comments"
+                android:maxWidth="100dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:layout_weight="2"
+
+                android:text="@string/comments"/>
+        </TableRow>
+        <TableRow
+            android:layout_marginTop="15dp">
+
+            <View android:layout_height="1dp" android:layout_weight="1"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_weight="2"
+                android:src="@drawable/line"/>
+        </TableRow>
+
+
+    </TableLayout>
+    <LinearLayout
+        android:id="@+id/gl_values_ll"
+        android:background="@drawable/frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </LinearLayout>
+
+</LinearLayout>

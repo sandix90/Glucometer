@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.sandix.glucometer.R;
+import org.sandix.glucometer.beans.UserBean;
 
 
 /**
@@ -14,6 +15,7 @@ public class MainListUserViewHolder extends RecyclerView.ViewHolder implements V
 
     public TextView userInfoTv;
     private OnViewHolderClickListener mListener;
+    private UserBean mUserBean;
 
     public MainListUserViewHolder(View itemView, OnViewHolderClickListener listener ) {
         super(itemView);
@@ -23,14 +25,18 @@ public class MainListUserViewHolder extends RecyclerView.ViewHolder implements V
 
     }
 
+    public void setmUserBean(UserBean mUserBean) {
+        this.mUserBean = mUserBean;
+    }
+
     @Override
     public void onClick(View v) {
         if(v instanceof TextView){
-            mListener.onClick(v);
+            mListener.onClick(v, this.mUserBean);
         }
     }
 
     public interface OnViewHolderClickListener{
-        void onClick(View caller);
+        void onClick(View caller, UserBean selectedUserBean);
     }
 }

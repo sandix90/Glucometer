@@ -28,7 +28,8 @@ public class DBHelper extends SQLiteOpenHelper {
                         "phone nvarchar(20)," +
                         "diabetic_type nvarchar(40)," +
                         "email nvarchar(50)," +
-                        "comments text" +
+                        "comments text," +
+                        "sync_time_stamp datetime" +
                         ")";
         db.execSQL(main_tableQuery);
 
@@ -46,7 +47,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 "CREATE TABLE sync(" +
                         "id integer primary key autoincrement," +
                         "serial_num nvarchar(30)," +
-                        "last_sync datetime)";
+                        "last_sync datetime," +
+                        "sync_time_stamp datetime" +
+                        ")";
         db.execSQL(sync_tableQuery);
 
 

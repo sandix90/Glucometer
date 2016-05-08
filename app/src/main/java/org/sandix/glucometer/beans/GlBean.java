@@ -1,10 +1,14 @@
 package org.sandix.glucometer.beans;
 
+import java.io.Serializable;
+
 /**
  * Created by sandakov.a on 19.04.2016.
  */
-public class GlBean {
-
+public class GlBean implements Serializable {
+    /*
+    * Serializable нужен для того, чтобы пересылать объект из одной активити в другую в адаптере MainListUsersAdapter в onCreateViewHolder
+    * */
     private float gl_value;
     private String date;
 

@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -16,13 +18,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.sandix.glucometer.adapters.UserInfoAdapter;
+import org.sandix.glucometer.asyncTasks.AsyncDbExecutor;
 import org.sandix.glucometer.beans.Bean;
 
 import org.sandix.glucometer.beans.UserBean;
 import org.sandix.glucometer.db.DB;
 import org.sandix.glucometer.db.DBHelper;
+import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +39,15 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by sandakov.a on 12.04.2016.
  */
-public class DetailedInfoClientForm extends AppCompatActivity {
+public class DetailedInfoClientForm extends AppCompatActivity implements View.OnClickListener {
 
-    RecyclerView mainRecyclerView;
+
     Context context;
-    int id_to_open;
+    TextView diabeticTypeTv,therapyTypeTv,ageTv,emailTv,phoneTv,commentsTv,genderTv, patient_nameTv;
+    UserBean selectedUserBean;
+    FloatingActionButton edit_btn;
+    LinearLayout gl_values_ll;
+    //int id_to_open;
 
 
     @Override
@@ -53,17 +65,28 @@ public class DetailedInfoClientForm extends AppCompatActivity {
         getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mainRecyclerView = (RecyclerView) findViewById(R.id.mainRecyclerView);
+        diabeticTypeTv = (TextView) findViewById(R.id.diabetic_type);
+        therapyTypeTv = (TextView) findViewById(R.id.therapy_type);
+        ageTv = (TextView)findViewById(R.id.age);
+        emailTv = (TextView)findViewById(R.id.email);
+        phoneTv = (TextView)findViewById(R.id.phone);
+        commentsTv = (TextView)findViewById(R.id.comments);
+        genderTv = (TextView)findViewById(R.id.gender);
+        patient_nameTv = (TextView)findViewById(R.id.patient_name);
+        edit_btn = (FloatingActionButton)findViewById(R.id.edit_btn);
+        edit_btn.setOnClickListener(this);
+        gl_values_ll = (LinearLayout) findViewById(R.id.gl_values_ll);
+        gl_values_ll.setVisibility(View.INVISIBLE);
+
+
         context = this;
-        if(getIntent().hasExtra("user_id")){
-            id_to_open = getIntent().getIntExtra("user_id",-1);
+
+        if(getIntent().hasExtra("userBean")){
+            selectedUserBean = (UserBean)getIntent().getSerializableExtra("userBean");
             openUser();
 
         }
-
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -72,10 +95,14 @@ public class DetailedInfoClientForm extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        int id = item.getItemId();
+        switch (id) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     protected void onDestroy() {
@@ -83,39 +110,50 @@ public class DetailedInfoClientForm extends AppCompatActivity {
     }
 
     private void openUser() {
-        if(id_to_open!=-1){
-            AsyncTask task = new AsyncDbRequest(context);
-            task.execute(id_to_open);
-            try {
-                UserBean userBean = (UserBean)task.get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+        patient_nameTv.setText(selectedUserBean.getFIO());
+        diabeticTypeTv.setText(selectedUserBean.getDiabetic_type());
+        therapyTypeTv.setText(selectedUserBean.getTherapy_type());
+        ageTv.setText(String.valueOf(selectedUserBean.getAge()));
+        emailTv.setText(selectedUserBean.getEmail());
+        phoneTv.setText(selectedUserBean.getPhone());
+        genderTv.setText(selectedUserBean.getGender());
+        commentsTv.setText(selectedUserBean.getComments());
+
+        //DB db = new DB(this);
+        //db.getUserDataById(selectedUserBean.getId());
+        String query = "SELECT * FROM main WHERE serial_number='"+selectedUserBean.getSerial_number()+"' LIMIT 5 OFFSET (" +
+                "SELECT count(*) FROM main)-5 order by id DESC;";
+        AsyncDbExecutor executor = new AsyncDbExecutor(this,query);
+        executor.setOnTaskCompleteListener(new AsyncTaskCompleteListener() {
+            @Override
+            public void onTaskComplete(Object result, int request_type) {
+                if(result!=null) {
+                    gl_values_ll.setVisibility(View.VISIBLE);
+                    Cursor c = (Cursor) result;
+                    if(c.moveToFirst()){
+                        do{
+                            View  v = getLayoutInflater().inflate(R.layout.row_glucometer_value,gl_values_ll,false);
+                            TextView gluc_value = (TextView) v.findViewById(R.id.gluc_value);
+                            TextView value_date = (TextView)v.findViewById(R.id.value_date);
+                            gluc_value.setText(c.getString(c.getColumnIndex("gluc_value")));
+                            value_date.setText(c.getString(c.getColumnIndex("value_date")));
+                            gl_values_ll.addView(v);
+                        }while(c.moveToNext());
+                    }
+                }
             }
-        }
+        });
+
 
     }
 
-
-
-
-    class AsyncDbRequest extends AsyncTask<Integer,Void,UserBean>{
-        private Context context;
-        public AsyncDbRequest(Context context){
-            this.context = context;
-        }
-
-        @Override
-        protected UserBean doInBackground(Integer... params) {
-            DB db = new DB(context);
-            db.open();
-            UserBean userBean = db.getUserDataById(params[0]);
-
-
-            return userBean;
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch(id){
+            case R.id.edit_btn:
+                Snackbar.make(findViewById(R.id.coordinator_layout),"Ok, edit it",Snackbar.LENGTH_SHORT).show();
+                break;
         }
     }
-
-
 }

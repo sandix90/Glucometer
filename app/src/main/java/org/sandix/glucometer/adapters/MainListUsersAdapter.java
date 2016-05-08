@@ -2,6 +2,7 @@ package org.sandix.glucometer.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import org.sandix.glucometer.beans.MainListBean;
 import org.sandix.glucometer.beans.UserBean;
 import org.sandix.glucometer.viewHolders.MainListUserViewHolder;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,15 +30,18 @@ public class MainListUsersAdapter extends RecyclerView.Adapter<MainListUserViewH
         this.mUserInfoBeanList = userInfoBeanList;
         mLayoutInflater = mLayoutInflater.from(context);
         this.context = context;
+        Collections.sort(mUserInfoBeanList);
 
     }
     @Override
     public MainListUserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new MainListUserViewHolder(mLayoutInflater.inflate(R.layout.main_list_users_row, parent, false), new MainListUserViewHolder.OnViewHolderClickListener() {
             @Override
-            public void onClick(View caller) {
+            public void onClick(View caller, UserBean selectedUserBean) {
                 Intent intent = new Intent(context, DetailedInfoClientForm.class);
-                intent.putExtra("user_id", caller.getId());
+                //Bundle bundle = new Bundle();
+                intent.putExtra("userBean", selectedUserBean);
+                //intent.putExtra("user_id", caller.getId());
                 context.startActivity(intent);
 
             }
@@ -47,6 +52,7 @@ public class MainListUsersAdapter extends RecyclerView.Adapter<MainListUserViewH
     public void onBindViewHolder(MainListUserViewHolder holder, int position) {
         holder.userInfoTv.setText(mUserInfoBeanList.get(position).getFIO());
         holder.userInfoTv.setId(mUserInfoBeanList.get(position).getId());
+        holder.setmUserBean(mUserInfoBeanList.get(position));
         //holder.userInfoTv.setTag(mUserInfoBeanList.get(position).get);
 
 
@@ -61,4 +67,6 @@ public class MainListUsersAdapter extends RecyclerView.Adapter<MainListUserViewH
     public long getItemId(int position) {
         return super.getItemId(position);
     }
+
+
 }

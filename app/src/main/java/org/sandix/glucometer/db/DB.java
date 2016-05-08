@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import org.sandix.glucometer.beans.GlBean;
 import org.sandix.glucometer.beans.UserBean;
+import org.sandix.glucometer.tools;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,7 @@ public class DB {
         cv.put("diabetic_type",diabetic_type);
         cv.put("email",email);
         cv.put("comments", comments);
+        cv.put("sync_time_stamp", tools.getTimeStamp());
 
         mDB.insert("main",null,cv);
 

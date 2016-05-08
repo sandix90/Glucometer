@@ -11,11 +11,27 @@
 
     </style>
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
-
         <item name="android:toolbarStyle">@style/ToolbarStyle</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 
+    <style name="AppTheme.NoActionBar.SimpleCoordinatorTheme">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="ImageViewStyle">
+
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">26dp</item>
 
     </style>
+
+
+
+
 
     <style name="ToolbarStyle">
         <item name="android:background">@color/colorPrimaryDark</item>
