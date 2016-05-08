@@ -7,6 +7,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.sandix.glucometer.beans.GlBean;
 import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
 
@@ -87,17 +88,17 @@ public class AsyncGlucometerExecutor extends AsyncTask<Void,Void,Object> {
         return null;
     }
 
-    private String[] getGlucometerRecord(){
+    private GlBean getGlucometerRecord(){
         if(mUsbDevice!=null){
             glucometerDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
             if(glucometerDevice!=null) {
                 glucometerDevice.open();
-                String[] str;
-                str = glucometerDevice.getRecord(0);
-                Log.d("MainAct", "Str length: " + str.length);
+                GlBean bean;
+                bean = glucometerDevice.getRecord(0);
+                //Log.d("MainAct", "Str length: " + str.length);
                 //mMessage.setText("Data: " + str[0] + " Value: " + str[1]);
                 glucometerDevice.close();
-                return str;
+                return bean;
             }
         }
         return null;

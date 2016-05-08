@@ -5,6 +5,8 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.util.Log;
 
+import org.sandix.glucometer.beans.GlBean;
+
 /**
  * Abstract class for detect device model
  * Use: \n
@@ -41,7 +43,7 @@ public abstract class UsbGlucometerDevice {
     public abstract int getRecordsCount();
     public abstract boolean open();
     public abstract boolean close();
-    public abstract String[] getRecord(int num);
+    public abstract GlBean getRecord(int num);
 
     public int write(byte[] data){
         if(data==null){

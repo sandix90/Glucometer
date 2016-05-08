@@ -32,6 +32,7 @@ import android.widget.Toast;
 import org.sandix.glucometer.adapters.MainListUsersAdapter;
 import org.sandix.glucometer.asyncTasks.AsyncDbExecutor;
 import org.sandix.glucometer.asyncTasks.AsyncGlucometerExecutor;
+import org.sandix.glucometer.beans.GlBean;
 import org.sandix.glucometer.beans.UserBean;
 import org.sandix.glucometer.db.DBHelper;
 import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
@@ -187,6 +188,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 executor.execute();
                 break;
             case R.id.getfirstrecord:
+                AsyncGlucometerExecutor record_executor = new AsyncGlucometerExecutor(this, AsyncGlucometerExecutor.VALUE, mUsbDevice, mUsbDeviceConnection);
+                record_executor.setAsyncTaskCompleteListener(this);
+                record_executor.execute();
                 //getGlucometerRecord();
                 break;
             case R.id.getrecordscount:
@@ -239,7 +243,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mMessage.setText("Count: "+String.valueOf(result));
                 break;
             case AsyncGlucometerExecutor.VALUE:
-                //mMessage.setText("Value: "+(String[])result[0]+" "+(String[])result[1]);
+                if(result!=null) {
+                    GlBean glBean = (GlBean) result;
+                    mMessage.setText("Value: "+glBean.getGl_value()+ " Date: "+glBean.getDate());
+                }
+
                 break;
             case AsyncDbExecutor.DB_TASK_SELECT_ALL:
                 Cursor all_users_cursor = (Cursor)result;
@@ -301,7 +309,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         File backupDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),"Glucomaster");
         File backupFile = new File(backupDir,_filename+".backup");
         if(!backupDir.exists()){
-            backupDir.mkdirs();
+            if(!backupDir.mkdirs()){
+                return;
+            }
         }
         try {
             FileChannel source = new FileInputStream(dbFile).getChannel();

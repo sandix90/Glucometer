@@ -99,9 +99,15 @@ public class UserBean implements Comparable, Serializable {
         return glBeanList;
     }
 
+    public void addGlBean(GlBean glBean){
+        glBeanList.add(glBean);
+    }
+
+
     @Override
     public int compareTo(Object another) {
         UserBean sec_obj = (UserBean)another;
         return getFIO().compareToIgnoreCase(sec_obj.getFIO());
     }
+
 }

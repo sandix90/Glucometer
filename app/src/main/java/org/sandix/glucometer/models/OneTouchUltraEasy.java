@@ -3,6 +3,7 @@ package org.sandix.glucometer.models;
 import android.hardware.usb.*;
 import android.util.Log;
 
+import org.sandix.glucometer.beans.GlBean;
 import org.sandix.glucometer.tools;
 
 import java.nio.charset.StandardCharsets;
@@ -157,7 +158,7 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
     }
 
     @Override
-    public String[] getRecord(int num) { //index in glucometer
+    public GlBean getRecord(int num) { //value index in glucometer
         String[] str = new String[2];
         readRecCmd[5] = (byte)num;
         write(readRecCmd);
@@ -167,18 +168,21 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
         if(a>0){
             //from 14 - 11 - date in unix from. //TODO: need to make util to convert unix format date to date
             // from 18 - 15 - glucomter value in mg/mL. use convert method in static util class
-            Log.d(LOG_TAG,"Date in bytes: "+buffer[11]+" "+buffer[12]+" "+buffer[13]+" "+buffer[14]);
-            Log.d(LOG_TAG,"Value in bytes: "+buffer[15]+" "+buffer[16]+" "+buffer[17]+" "+buffer[18]);
-            String date = new String(Arrays.copyOfRange(buffer,11,14), StandardCharsets.UTF_8);
-            Log.d(LOG_TAG,"Date in sting: "+date);
-            String value = new String(Arrays.copyOfRange(buffer,15,18), StandardCharsets.UTF_8);
-            Log.d(LOG_TAG,"Value in string: "+value);
+//            Log.d(LOG_TAG,"Date in bytes: "+buffer[11]+" "+buffer[12]+" "+buffer[13]+" "+buffer[14]);
+//            Log.d(LOG_TAG,"Value in bytes: "+buffer[15]+" "+buffer[16]+" "+buffer[17]+" "+buffer[18]);
+//            String date = new String(Arrays.copyOfRange(buffer,11,14), StandardCharsets.UTF_8);
+//            Log.d(LOG_TAG,"Date in sting: "+date);
+//            String value = new String(Arrays.copyOfRange(buffer,15,18), StandardCharsets.UTF_8);
+//            Log.d(LOG_TAG,"Value in string: "+value);
 
-            str[0] = String.valueOf(Integer.parseInt(tools.hexToString(tools.reverseArray(Arrays.copyOfRange(buffer,11,15))),16));
-            str[1] = new String(tools.reverseArray(Arrays.copyOfRange(buffer,15,19)),StandardCharsets.UTF_8);
+            String date = tools.convertUnixToDate(Long.parseLong(tools.hexToString(tools.reverseArray(Arrays.copyOfRange(buffer,11,15))),16));
+            //str[1] = new String(tools.reverseArray(Arrays.copyOfRange(buffer,15,19)),StandardCharsets.UTF_8);
+            double value = tools.convertMgToMMoll(Integer.parseInt(tools.hexToString(tools.reverseArray(Arrays.copyOfRange(buffer,15,19))),16));
+            GlBean gl = new GlBean(value, date);
+            return gl;
         }
 
-        return str;
+        return null;
     }
 
     public static boolean isDeviceSupported(int vendorID, int productID){

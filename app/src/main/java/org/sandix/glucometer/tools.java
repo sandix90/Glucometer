@@ -12,6 +12,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,8 +38,18 @@ public class tools {
         return new String(data, StandardCharsets.UTF_8);
     }
 
-    public static float convertMgToMMoll(int value){
-        return Math.round(value * 0.0555);
+    public static double convertMgToMMoll(int value){
+        DecimalFormat df=new DecimalFormat("0.00");
+        String format = df.format(value* 0.0555);
+        double finalValue;
+        try {
+            finalValue = (Double)df.parse(format);
+        } catch (ParseException e) {
+            return -1;
+        }
+        return finalValue;
+        //return Math.rouround(value * 0.0555);
+        //return value * 0.0555;
     }
 
     public static String hexToString(byte[] data)
@@ -48,10 +60,10 @@ public class tools {
             for(int i=0;i<=data.length-1;i++)
             {
                 byte dataAtIndex = data[i];
-                hex.append(HEX_INDICATOR);
+                //hex.append(HEX_INDICATOR);
                 hex.append(HEXES.charAt((dataAtIndex & 0xF0) >> 4))
                         .append(HEXES.charAt((dataAtIndex & 0x0F)));
-                hex.append(SPACE);
+                //hex.append(SPACE);
             }
             return hex.toString();
         }else
@@ -80,6 +92,12 @@ public class tools {
         SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss.SSS");
         Date date = new Date();
         return df.format(date);
+    }
+
+    public static String convertUnixToDate(long unixSeconds){
+        Date date = new Date(unixSeconds*1000L); // *1000 is to convert seconds to milliseconds
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        return sdf.format(date);
     }
 
 }
