@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RecyclerView main_list;
     FloatingActionButton fab;
     LinearLayoutManager llm;
+    Toolbar toolbar;
 
     private static final String ACTION_USB_PERMISSION =
             "org.sandix.glucometer.USB_PERMISSION";
@@ -79,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         main_list.setLayoutManager(llm);
         fab = (FloatingActionButton) findViewById(R.id.add_user);
         fab.setOnClickListener(this);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Список больных");
 
         getUsersInfo();
@@ -228,10 +233,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onTaskComplete(Object result, int request_type) {
         switch (request_type){
             case AsyncGlucometerExecutor.SERIAL_NUMBER:
-                mMessage.setText("SN: "+result.toString());
+                if(result!=null) {
+                    mMessage.setText("SN: " + result.toString());
+                }
                 break;
             case AsyncGlucometerExecutor.VALUES_COUNT:
-                mMessage.setText("Count: "+String.valueOf(result));
+                if((int)result>0) {
+                    mMessage.setText("Count: " + String.valueOf(result));
+                }
                 break;
             case AsyncGlucometerExecutor.VALUE:
                 if(result!=null) {

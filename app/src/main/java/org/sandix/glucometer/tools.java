@@ -2,6 +2,7 @@ package org.sandix.glucometer;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.sandix.glucometer.db.DB;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.TimeZone;
 
 /**
  * Created by Alex on 03.04.2016.
@@ -89,7 +91,7 @@ public class tools {
     }
 
     public static String getTimeStamp(){
-        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss.SSS");
+        SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss.SSS");
         Date date = new Date();
         return df.format(date);
     }
@@ -97,6 +99,7 @@ public class tools {
     public static String convertUnixToDate(long unixSeconds){
         Date date = new Date(unixSeconds*1000L); // *1000 is to convert seconds to milliseconds
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         return sdf.format(date);
     }
 

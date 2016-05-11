@@ -25,4 +25,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile project(':usbserial')
     compile 'com.android.support:design:23.3.0'
+    compile files('libs/mpandroidchartlibrary-2-1-6.jar')
 }
