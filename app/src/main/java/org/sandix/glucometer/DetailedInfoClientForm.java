@@ -90,6 +90,7 @@ public class DetailedInfoClientForm extends AppCompatActivity implements View.On
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.detailed_activity_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -99,6 +100,12 @@ public class DetailedInfoClientForm extends AppCompatActivity implements View.On
         switch (id) {
             case android.R.id.home:
                 finish();
+                break;
+            case R.id.show_chart:
+                Intent intent = new Intent(this,ActivityChart.class);
+                intent.putExtra("userBean", selectedUserBean);
+                startActivity(intent);
+
                 break;
         }
         return super.onOptionsItemSelected(item);

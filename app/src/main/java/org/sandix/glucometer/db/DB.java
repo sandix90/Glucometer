@@ -5,8 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import org.sandix.glucometer.asyncTasks.AsyncDbExecutor;
 import org.sandix.glucometer.beans.GlBean;
 import org.sandix.glucometer.beans.UserBean;
+import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
 import org.sandix.glucometer.tools;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ public class DB {
     private Context context;
     private  DBHelper mDbHelper;
     private SQLiteDatabase mDB;
+    private Cursor c;
 
     public DB(Context context){
         this.context = context;
@@ -104,7 +107,6 @@ public class DB {
             userBean.setGlBeanList(glBeanList); //Добавлем список значений к информации пользователя
         }
         return userBean;
-
     }
 
     public Cursor stringQuery(String request){
@@ -114,5 +116,30 @@ public class DB {
     public Cursor getAllUsers(){
 
         return  mDB.query("main",null,null,null,null,null,null);
+    }
+
+    public List<GlBean> getGlBeansBySerial(String serial_number){
+
+        List<GlBean> beanList = new ArrayList<GlBean>();
+        String query = "SELECT * from values_table WHERE serial_num='"+ serial_number +"'";
+        AsyncDbExecutor executor = new AsyncDbExecutor(context, query);
+
+        executor.setOnTaskCompleteListener(new AsyncTaskCompleteListener() {
+            @Override
+            public void onTaskComplete(Object result, int request_type) {
+                c=(Cursor)result;
+            }
+        });
+        executor.execute();
+
+        if(c!=null && c.moveToFirst()){
+            do{
+                beanList.add(new GlBean(c.getDouble(c.getColumnIndex("gluc_value")),c.getString(c.getColumnIndex("value_date"))));
+            }while(c.moveToNext());
+            return  beanList;
+        }
+        return null;
+
+
     }
 }
