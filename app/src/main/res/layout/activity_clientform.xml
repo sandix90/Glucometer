@@ -43,12 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@null"
-
                 app:layout_collapseMode="pin"/>
-
-
-
-
             <LinearLayout
                 app:layout_collapseParallaxMultiplier="0.7"
                 android:gravity="center_horizontal"

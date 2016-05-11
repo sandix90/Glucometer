@@ -2,8 +2,6 @@ package org.sandix.glucometer;
 
 import android.Manifest;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
@@ -13,7 +11,6 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -27,7 +24,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.sandix.glucometer.adapters.MainListUsersAdapter;
 import org.sandix.glucometer.asyncTasks.AsyncDbExecutor;
@@ -49,7 +45,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, AsyncTaskCompleteListener {
     UsbManager mUsbManager;
     ListView deviceList;
-    Button refreshBtn, getInfoBtn;
+    Button refreshBtn;
     TextView mMessage;
     UsbDevice mUsbDevice;
     UsbGlucometerDevice glucometerDevice;
@@ -59,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     RecyclerView main_list;
     FloatingActionButton fab;
     LinearLayoutManager llm;
-//    android.os.Handler h;
 
     private static final String ACTION_USB_PERMISSION =
             "org.sandix.glucometer.USB_PERMISSION";
@@ -76,17 +71,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         mUsbManager = (UsbManager) getSystemService(USB_SERVICE);
-        //deviceList = (ListView) findViewById(R.id.device_list);
-        refreshBtn = (Button) findViewById(R.id.refresh_btn);
-        refreshBtn.setOnClickListener(this);
+//        refreshBtn = (Button) findViewById(R.id.refresh_btn);
+//        refreshBtn.setOnClickListener(this);
         mMessage = (TextView) findViewById(R.id.message);
-        getInfoBtn = (Button) findViewById(R.id.get_info);
-        getInfoBtn.setOnClickListener(this);
         main_list = (RecyclerView) findViewById(R.id.main_list);
         llm = new LinearLayoutManager(this);
         main_list.setLayoutManager(llm);
         fab = (FloatingActionButton) findViewById(R.id.add_user);
         fab.setOnClickListener(this);
+        getSupportActionBar().setTitle("Список больных");
 
         getUsersInfo();
         //ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
@@ -106,8 +99,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 
     }
-
-
 
     private void getUsersInfo() {
         AsyncDbExecutor dbExecutor = new AsyncDbExecutor(this); //Без доп. аргументов, значит вытащить всех пользователей. см.AsyncDbExecutor
@@ -140,14 +131,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.refresh_btn:
-                tmp();
-                break;
-            case R.id.get_info:
-                //communicate();
-                Intent intent = new Intent(this, DetailedInfoClientForm.class);
-                startActivity(intent);
-                break;
+//            case R.id.refresh_btn:
+//                tmp();
+//                break;
+//            case R.id.get_info:
+//                //communicate();
+//                Intent intent = new Intent(this, DetailedInfoClientForm.class);
+//                startActivity(intent);
+//                break;
             case R.id.add_user:
                 Intent i = new Intent(this, EditClientForm.class);
                 startActivity(i);
@@ -301,8 +292,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void backupDataBase(String _filename) {
-
-
         DBHelper dbHelper= new DBHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         File dbFile = new File(db.getPath());
