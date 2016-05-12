@@ -43,7 +43,7 @@ public class DetailedInfoClientForm extends AppCompatActivity implements View.On
 
 
     Context context;
-    TextView diabeticTypeTv,therapyTypeTv,ageTv,emailTv,phoneTv,commentsTv,genderTv, patient_nameTv;
+    TextView diabeticTypeTv,therapyTypeTv,ageTv,emailTv,phoneTv,commentsTv,genderTv, patientLastNameTv,patientFirstNameTv;
     UserBean selectedUserBean;
     FloatingActionButton edit_btn;
     LinearLayout gl_values_ll;
@@ -72,7 +72,8 @@ public class DetailedInfoClientForm extends AppCompatActivity implements View.On
         phoneTv = (TextView)findViewById(R.id.phone);
         commentsTv = (TextView)findViewById(R.id.comments);
         genderTv = (TextView)findViewById(R.id.gender);
-        patient_nameTv = (TextView)findViewById(R.id.patient_name);
+        patientLastNameTv = (TextView)findViewById(R.id.patient_last_name);
+        patientFirstNameTv = (TextView)findViewById(R.id.patient_first_name);
         edit_btn = (FloatingActionButton)findViewById(R.id.edit_btn);
         edit_btn.setOnClickListener(this);
         gl_values_ll = (LinearLayout) findViewById(R.id.gl_values_ll);
@@ -117,7 +118,8 @@ public class DetailedInfoClientForm extends AppCompatActivity implements View.On
     }
 
     private void openUser() {
-        patient_nameTv.setText(selectedUserBean.getFIO());
+        patientLastNameTv.setText(selectedUserBean.getLast_name());
+        patientFirstNameTv.setText(selectedUserBean.getFirst_name());
         diabeticTypeTv.setText(selectedUserBean.getDiabetic_type());
         therapyTypeTv.setText(selectedUserBean.getTherapy_type());
         ageTv.setText(String.valueOf(selectedUserBean.getAge()));
