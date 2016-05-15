@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +35,7 @@ import org.sandix.glucometer.beans.UserBean;
 import org.sandix.glucometer.db.DBHelper;
 import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
+import org.sandix.glucometer.synchronizers.Synchronizer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -104,6 +106,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 
     }
+
+
 
     private void getUsersInfo() {
         AsyncDbExecutor dbExecutor = new AsyncDbExecutor(this); //Без доп. аргументов, значит вытащить всех пользователей. см.AsyncDbExecutor
@@ -289,14 +293,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void synchronize() {
+        final String[] sn = {""};
         AsyncGlucometerExecutor exec = new AsyncGlucometerExecutor(this, AsyncGlucometerExecutor.SERIAL_NUMBER,mUsbDevice,mUsbDeviceConnection);
         exec.setAsyncTaskCompleteListener(new AsyncTaskCompleteListener() {
             @Override
             public void onTaskComplete(Object result, int request_type) {
-                mMessage.setText((String)result);
+                sn[0] = (String)result;
+                Log.d("MainActivity", (String)result);
+                //mMessage.setText((String)result);
+                Synchronizer synchronizer = new Synchronizer(MainActivity.this,(String)result, mUsbDevice,mUsbDeviceConnection);
+                synchronizer.execute();
             }
         });
         exec.execute();
+
+
 
     }
 

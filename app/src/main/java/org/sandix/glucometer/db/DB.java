@@ -139,7 +139,38 @@ public class DB {
             return  beanList;
         }
         return null;
+    }
 
+    public Cursor execute(String query){
+        return mDB.rawQuery(query,null);
+    }
 
+    public UserBean checkIfExist(String serial_number){
+        Cursor c = mDB.rawQuery("SELECT * from main WHERE serial_num='"+serial_number+"';",null);
+        if(c.moveToFirst()){
+            return new UserBean(Integer.parseInt(c.getString(c.getColumnIndex("id"))),
+                    c.getString(c.getColumnIndex("serialnumber")),
+                    c.getString(c.getColumnIndex("last_name")),
+                    c.getString(c.getColumnIndex("first_name")),
+                    c.getString(c.getColumnIndex("middle_name")),
+                    c.getInt(c.getColumnIndex("age")),
+                    c.getString(c.getColumnIndex("email")),
+                    c.getString(c.getColumnIndex("therapy_type")),
+                    c.getString(c.getColumnIndex("diabetic_type")),
+                    c.getString(c.getColumnIndex("phone")),
+                    c.getInt(c.getColumnIndex("gender")) == 1 ? "Мужской" : "Женский",
+                    c.getString(c.getColumnIndex("comments"))); //Убрал из конструктора инициализацию glBeanList, потому что в базе может не быть значений. Сделал setter
+        }
+        else{
+            return null; // Завершаем работу если пользователя с таким id не существует или ошибка БД.
+        }
+    }
+
+    public void addValueToGlValuesTable(String serial_number, GlBean bean){
+        ContentValues cv = new ContentValues();
+        cv.put("serial_num", serial_number);
+        cv.put("gluc_value", bean.getGl_value());
+        cv.put("value_date", bean.getDate());
+        mDB.insert("values_table",null,cv);
     }
 }

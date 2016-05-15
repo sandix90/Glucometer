@@ -25,6 +25,7 @@ public class AsyncGlucometerExecutor extends AsyncTask<Void,Void,Object> {
     private ProgressDialog dialog;
     private Context context;
     private int request_type;
+    private int index;
 
     private UsbDevice mUsbDevice;
     private UsbDeviceConnection mUsbDeviceConnection;
@@ -49,6 +50,14 @@ public class AsyncGlucometerExecutor extends AsyncTask<Void,Void,Object> {
     }
 
 
+    /*
+    * This method use to set index to get value from glucometer by index<br>
+    */
+    public void setIndexVar(int index){
+        this.index = index;
+    }
+
+
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
@@ -63,7 +72,11 @@ public class AsyncGlucometerExecutor extends AsyncTask<Void,Void,Object> {
             case SERIAL_NUMBER:
                 return getGlucometerSN();
             case VALUE:
-                return getGlucometerRecord();
+                if(index!=-1) {
+                    return getGlucometerRecord(index);
+                }
+                return null;
+
         }
         return null;
     }
@@ -88,13 +101,13 @@ public class AsyncGlucometerExecutor extends AsyncTask<Void,Void,Object> {
         return null;
     }
 
-    private GlBean getGlucometerRecord(){
+    private GlBean getGlucometerRecord(int index){
         if(mUsbDevice!=null){
             glucometerDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
             if(glucometerDevice!=null) {
                 glucometerDevice.open();
                 GlBean bean;
-                bean = glucometerDevice.getRecord(0);
+                bean = glucometerDevice.getRecord(index);
                 //Log.d("MainAct", "Str length: " + str.length);
                 //mMessage.setText("Data: " + str[0] + " Value: " + str[1]);
                 glucometerDevice.close();
