@@ -1,9 +1,11 @@
 package org.sandix.glucometer.services;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 
 import org.sandix.glucometer.beans.GlBean;
 import org.sandix.glucometer.db.DB;
@@ -22,6 +24,7 @@ public class GlIntentService extends IntentService {
      */
 
     private UsbGlucometerDevice mGlucometerDevice;
+    private Context context;
 
     public final static String ACTION_GLINTENTSERVICE = "org.sandix.glucometer.intentservice.RESPONSE";
     public final static int VALUES_COUNT = 0;
@@ -36,9 +39,10 @@ public class GlIntentService extends IntentService {
     private List<GlBean> glBeanList;
 
 
-    public GlIntentService(String name, UsbGlucometerDevice device) {
+    public GlIntentService(String name, Context context, UsbGlucometerDevice device) {
         super(name);
         this.mGlucometerDevice = device;
+        this.context = context;
     }
 
     @Override
@@ -49,23 +53,14 @@ public class GlIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
             if(intent.hasExtra("type")){
-                if(intent.getIntExtra("type",-1)==VALUES_COUNT){
-                    Intent valuesCountResponseIntent = new Intent();
-                    valuesCountResponseIntent.setAction(ACTION_GLINTENTSERVICE);
-                    valuesCountResponseIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                    valuesCountResponseIntent.putExtra("values_count", getGlucometerRecordCount());
-                    sendBroadcast(valuesCountResponseIntent);
+                if(intent.getIntExtra("type", -1)==SERIAL_NUMBER){ //Получаем серийник
+                    Intent snIntent = new Intent();
+                    snIntent.setAction(ACTION_GLINTENTSERVICE);
+                    snIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                    snIntent.putExtra("serial_number", getGlucometerSN());
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(snIntent);
                 }
-                else if(intent.getIntExtra("type",-1)==VALUES && intent.hasExtra("index_to")){
-
-                    index_to = intent.getIntExtra("index_to",0);
-                    if(index_to==0){
-                        return;
-                    }
-
-
-                }
-                else if (intent.getIntExtra("type", -1)==SYNC){
+                else if (intent.getIntExtra("type", -1)==SYNC){ //Синхронизируем
                     if(mGlucometerDevice!=null){
                         mRecordsCount = getGlucometerRecordCount();
                         glBeanList = new ArrayList<>();
@@ -83,9 +78,13 @@ public class GlIntentService extends IntentService {
                             else{//Значения нет, добавляем
                                 db.addValueToGlValuesTable(mGlucometerDevice.getSN(),bean);
                             }
-
                         }
                         db.close();
+
+                        Intent syncIntentResponse = new Intent();
+                        syncIntentResponse.setAction(ACTION_GLINTENTSERVICE);
+                        syncIntentResponse.putExtra("sync_response",true);
+                        sendBroadcast(syncIntentResponse);
 
 
 //                        Bundle bundle = new Bundle();

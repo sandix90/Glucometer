@@ -46,25 +46,25 @@ public class SyncHelper {
 //
     public void synchronize(){
 
-        Intent glIntentServiceVC = new Intent(context, GlIntentService.class);
-        glIntentServiceVC.putExtra("type", GlIntentService.VALUES_COUNT);
-
-        GlIntentService glIntentService = new GlIntentService("glIntentService", glucometerDevice);
-        glIntentService.startService(glIntentServiceVC);
-
-
-        Intent glIntentServiceV = new Intent(context, GlIntentService.class);
-        glIntentServiceV.putExtra("type", GlIntentService.VALUES);
-        if(recordsCount>0){
-            glIntentServiceV.putExtra("index_to", recordsCount);
-        }
-
-        //GlIntentService glIntentService1 = new GlIntentService("glIntentService", glucometerDevice);
-        glIntentService.startService(glIntentServiceV);
-
-
-
-        Intent DBSyncIntent = new Intent(context,GlIntentService.class);
+//        Intent glIntentServiceVC = new Intent(context, GlIntentService.class);
+//        glIntentServiceVC.putExtra("type", GlIntentService.VALUES_COUNT);
+//
+//        GlIntentService glIntentService = new GlIntentService("glIntentService", SyncHelper.this, glucometerDevice);
+//        glIntentService.startService(glIntentServiceVC);
+//
+//
+//        Intent glIntentServiceV = new Intent(context, GlIntentService.class);
+//        glIntentServiceV.putExtra("type", GlIntentService.VALUES);
+//        if(recordsCount>0){
+//            glIntentServiceV.putExtra("index_to", recordsCount);
+//        }
+//
+//        //GlIntentService glIntentService1 = new GlIntentService("glIntentService", glucometerDevice);
+//        glIntentService.startService(glIntentServiceV);
+//
+//
+//
+//        Intent DBSyncIntent = new Intent(context,GlIntentService.class);
 
 
 
