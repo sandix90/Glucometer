@@ -29,6 +29,11 @@
 
     </style>
 
+    <style name="AppTabLayout" parent="Widget.Design.AppBarLayout">
+        <item name="tabIndicatorColor">@color/white</item>
+        <item name="tabIndicatorHeight">4dp</item>
+    </style>
+
 
 
 

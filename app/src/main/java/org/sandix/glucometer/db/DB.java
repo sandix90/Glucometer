@@ -146,7 +146,7 @@ public class DB {
     }
 
     public UserBean checkIfExist(String serial_number){
-        Cursor c = mDB.rawQuery("SELECT * from main WHERE serial_num='"+serial_number+"';",null);
+        Cursor c = mDB.rawQuery("SELECT * from main WHERE serialnumber='"+serial_number+"';",null);
         if(c.moveToFirst()){
             return new UserBean(Integer.parseInt(c.getString(c.getColumnIndex("id"))),
                     c.getString(c.getColumnIndex("serialnumber")),

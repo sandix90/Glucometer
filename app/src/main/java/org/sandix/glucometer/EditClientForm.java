@@ -40,6 +40,11 @@ public class EditClientForm extends AppCompatActivity {
         genderSpinner.setAdapter(new ArrayAdapter<>(this,R.layout.spinner_row,R.id.tv_item,getResources().getStringArray(R.array.gender_list))) ;
         therapySpinner.setAdapter(new ArrayAdapter<>(this,R.layout.spinner_row, R.id.tv_item,getResources().getStringArray(R.array.therapy_type)));
         diabetSpinner.setAdapter(new ArrayAdapter<>(this,R.layout.spinner_row, R.id.tv_item,getResources().getStringArray(R.array.diabets_type)));
+
+        if(getIntent().hasExtra("serialNumber")){
+            serialNumberEt.setText(getIntent().getStringExtra("serialNumber"));
+            serialNumberEt.setEnabled(false);
+        }
     }
 
 

@@ -40,6 +40,8 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
     UsbEndpoint inEndPoint;
     UsbEndpoint outEndPoint;
 
+    private String serialNumber="";
+
 
     private static byte[] recordsCountCmd = {0x02, 0x0A, 0x00, 0x05, 0x1F, (byte) 0xF5, 0x01, 0x03, 0x038, (byte) 0xAA};
     private static byte[] SNCmd = {0x02, 0x12, 0x00, 0x05, 0x0B, 0x02, 0x00, 0x00, 0x00, 0x00, (byte) 0x84, 0x6A, (byte) 0xE8, 0x73, 0x00, 0x03, (byte) 0x9B, (byte) 0xEA};
@@ -53,12 +55,19 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
 
     @Override
     public String getSN() {
-        write(SNCmd);
-        byte[] buf = new byte[64];
-        if (read(buf) >= 0) {
-            return new String(Arrays.copyOfRange(buf, 11, 20), StandardCharsets.UTF_8); //see the data transmission protocol
+        if(serialNumber.equals("")) {
+            write(SNCmd);
+            byte[] buf = new byte[64];
+            if (read(buf) >= 0) {
+                serialNumber = new String(Arrays.copyOfRange(buf, 11, 20), StandardCharsets.UTF_8);
+                return serialNumber; //see the data transmission protocol
+            }
+            return null;
         }
-        return null;
+        else{
+            return serialNumber;
+        }
+
     }
 
     @Override
@@ -66,7 +75,7 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
         write(recordsCountCmd);
         byte[] buf = new byte[inEndPoint.getMaxPacketSize()];
         if (read(buf) >= 0) {
-            return buf[11] + buf[12]; //TODO: get an indexes in data transmission protocol
+            return buf[11] + buf[12]; // get an indexes. in data transmission protocol
         }
         return -1;
     }
@@ -136,7 +145,14 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
         if (setControlCommand(PL2303_REQTYPE_HOST2DEVICE_VENDOR, PL2303_VENDOR_WRITE_REQUEST, 0x0505, 0x1311, null) < 0)
             return false;
 
+
+
+
         return true;
+    }
+
+    public void setSerialNumber(String sn){
+
     }
 
 
@@ -166,17 +182,7 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
         int a = read(buffer);
         Log.d(LOG_TAG,"getRecord buffer answer: "+a);
         if(a>0){
-            //from 14 - 11 - date in unix from. //TODO: need to make util to convert unix format date to date
-            // from 18 - 15 - glucomter value in mg/mL. use convert method in static util class
-//            Log.d(LOG_TAG,"Date in bytes: "+buffer[11]+" "+buffer[12]+" "+buffer[13]+" "+buffer[14]);
-//            Log.d(LOG_TAG,"Value in bytes: "+buffer[15]+" "+buffer[16]+" "+buffer[17]+" "+buffer[18]);
-//            String date = new String(Arrays.copyOfRange(buffer,11,14), StandardCharsets.UTF_8);
-//            Log.d(LOG_TAG,"Date in sting: "+date);
-//            String value = new String(Arrays.copyOfRange(buffer,15,18), StandardCharsets.UTF_8);
-//            Log.d(LOG_TAG,"Value in string: "+value);
-
             String date = tools.convertUnixToDate(Long.parseLong(tools.hexToString(tools.reverseArray(Arrays.copyOfRange(buffer,11,15))),16));
-            //str[1] = new String(tools.reverseArray(Arrays.copyOfRange(buffer,15,19)),StandardCharsets.UTF_8);
             double value = tools.convertMgToMMoll(Integer.parseInt(tools.hexToString(tools.reverseArray(Arrays.copyOfRange(buffer,15,19))),16));
             GlBean gl = new GlBean(value, date);
             return gl;

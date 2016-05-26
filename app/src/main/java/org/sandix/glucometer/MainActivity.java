@@ -1,7 +1,9 @@
 package org.sandix.glucometer;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 
@@ -18,7 +20,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,10 +33,11 @@ import org.sandix.glucometer.asyncTasks.AsyncDbExecutor;
 import org.sandix.glucometer.asyncTasks.AsyncGlucometerExecutor;
 import org.sandix.glucometer.beans.GlBean;
 import org.sandix.glucometer.beans.UserBean;
+import org.sandix.glucometer.db.DB;
 import org.sandix.glucometer.db.DBHelper;
 import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
-import org.sandix.glucometer.synchronizers.Synchronizer;
+import org.sandix.glucometer.synchronizers.SyncHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -97,17 +99,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //Toast.makeText(MainActivity.this, "mUsbDevice:" +mUsbDevice.toString() +", VID: "+mUsbDevice.getVendorId()+" PID:"+mUsbDevice.getProductId(), Toast.LENGTH_SHORT).show();
             mUsbDeviceConnection = mUsbManager.openDevice(mUsbDevice);
             synchronize();
-            //TODO: Здесь будет вызываться функция автоматического получения инфы с глюкометра
         }
 
         mPermissionIntent = PendingIntent.getBroadcast(this,0,new Intent(ACTION_USB_PERMISSION),0);
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-
     }
-
-
 
     private void getUsersInfo() {
         AsyncDbExecutor dbExecutor = new AsyncDbExecutor(this); //Без доп. аргументов, значит вытащить всех пользователей. см.AsyncDbExecutor
@@ -115,39 +113,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dbExecutor.execute(); //В классе вызывается event onTaskComplete(obj, type) тип запроса.
     }
 
-    private void tmp(){
-
-        try {
-            List<String> items = new ArrayList<>();
-            for (UsbDevice usbDevice : mUsbManager.getDeviceList().values()) {
-
-                items.add("DeviceName: "+ usbDevice.getDeviceName());
-                items.add("DeviceID: "+ String.valueOf(usbDevice.getDeviceId()));
-                items.add("DeviceClass: "+ String.valueOf(usbDevice.getDeviceClass()));
-                items.add("DeviceProtocol: "+ String.valueOf(usbDevice.getDeviceProtocol()));
-                items.add("DeviceVendorID: "+ String.valueOf(usbDevice.getVendorId()));
-                items.add("DeviceProductID: "+ usbDevice.getProductId());
-            }
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_expandable_list_item_1,items);
-            deviceList.setAdapter(adapter);
-
-        }catch (Exception e){
-            //Toast.makeText(MainActivity.this,e.getMessage().toString(),Toast.LENGTH_LONG).show();
-            mMessage.setText(e.getMessage());
-        }
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-//            case R.id.refresh_btn:
-//                tmp();
-//                break;
-//            case R.id.get_info:
-//                //communicate();
-//                Intent intent = new Intent(this, DetailedInfoClientForm.class);
-//                startActivity(intent);
-//                break;
             case R.id.add_user:
                 Intent i = new Intent(this, EditClientForm.class);
                 startActivity(i);
@@ -291,24 +259,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-
     private void synchronize() {
-        final String[] sn = {""};
-        AsyncGlucometerExecutor exec = new AsyncGlucometerExecutor(this, AsyncGlucometerExecutor.SERIAL_NUMBER,mUsbDevice,mUsbDeviceConnection);
-        exec.setAsyncTaskCompleteListener(new AsyncTaskCompleteListener() {
-            @Override
-            public void onTaskComplete(Object result, int request_type) {
-                sn[0] = (String)result;
-                Log.d("MainActivity", (String)result);
-                //mMessage.setText((String)result);
-                Synchronizer synchronizer = new Synchronizer(MainActivity.this,(String)result, mUsbDevice,mUsbDeviceConnection);
-                synchronizer.execute();
+
+        final UsbGlucometerDevice glDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice,mUsbDeviceConnection);
+        if(glDevice.open()){
+
+            DB db = new DB(this);
+            db.open();
+            UserBean userBean = db.checkIfExist(glDevice.getSN());
+            if(userBean==null) { //Пользователя не существует. Предлагаем создать
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Пациента с текущим глюкметром не существует в базе. Создать информацию о пациенте?").
+                        setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(MainActivity.this, EditClientForm.class);
+                                intent.putExtra("serialNumber", glDevice.getSN());
+                                startActivity(intent);
+                            }
+                        }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                builder.show();
+                db.close();
             }
-        });
-        exec.execute();
-
-
-
+            else{
+                SyncHelper syncHelper = new SyncHelper(this,glDevice);
+                syncHelper.synchronize();
+            }
+        }
     }
 
     public void backupDataBase(String _filename) {

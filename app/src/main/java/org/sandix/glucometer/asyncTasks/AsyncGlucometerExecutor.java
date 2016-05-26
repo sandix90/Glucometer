@@ -5,14 +5,10 @@ import android.content.Context;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.sandix.glucometer.beans.GlBean;
 import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Alex on 04.05.2016.
@@ -35,11 +31,12 @@ public class AsyncGlucometerExecutor extends AsyncTask<Void,Void,Object> {
 
 
     public AsyncGlucometerExecutor(Context context, int type, UsbDevice usbDevice, UsbDeviceConnection usbDeviceConnection){
+
         this.context = context;
         this.request_type = type;
         this.mUsbDevice = usbDevice;
         this.mUsbDeviceConnection = usbDeviceConnection;
-        dialog = new ProgressDialog(context);
+        dialog = new ProgressDialog(this.context);
         dialog.setTitle("Пожалуйста подождите");
         dialog.setMessage("Получение данных с глюкометра...");
         dialog.setCanceledOnTouchOutside(true);

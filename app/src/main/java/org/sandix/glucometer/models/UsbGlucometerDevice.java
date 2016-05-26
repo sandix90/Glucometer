@@ -74,4 +74,11 @@ public abstract class UsbGlucometerDevice {
         this.outEndPoint = outEndPoint;
     }
 
+    public UsbDevice getUsbDevice(){return device;}
+
+    public UsbDeviceConnection getUsbDeviceConnection(){return connection;}
+
+
+
+
 }
