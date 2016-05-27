@@ -9,6 +9,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import org.sandix.glucometer.beans.GlBean;
 import org.sandix.glucometer.db.DB;
+import org.sandix.glucometer.models.GlucometerProxy;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
 
 import java.io.Serializable;
@@ -23,8 +24,6 @@ public class GlIntentService extends IntentService {
      * @param name Used to name the worker thread, important only for debugging.
      */
 
-    private UsbGlucometerDevice mGlucometerDevice;
-    private Context context;
 
     public final static String ACTION_GLINTENTSERVICE = "org.sandix.glucometer.intentservice.RESPONSE";
     public final static int VALUES_COUNT = 0;
@@ -41,8 +40,7 @@ public class GlIntentService extends IntentService {
 
     public GlIntentService(String name, Context context, UsbGlucometerDevice device) {
         super(name);
-        this.mGlucometerDevice = device;
-        this.context = context;
+
     }
 
     @Override
@@ -57,26 +55,27 @@ public class GlIntentService extends IntentService {
                     Intent snIntent = new Intent();
                     snIntent.setAction(ACTION_GLINTENTSERVICE);
                     snIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                    snIntent.putExtra("serial_number", getGlucometerSN());
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(snIntent);
+                    snIntent.putExtra("serial_number", GlucometerProxy.getInstance().getSerialNumber());
+                    LocalBroadcastManager.getInstance(this).sendBroadcast(snIntent);
                 }
                 else if (intent.getIntExtra("type", -1)==SYNC){ //Синхронизируем
-                    if(mGlucometerDevice!=null){
-                        mRecordsCount = getGlucometerRecordCount();
+                    if(!GlucometerProxy.getInstance().isGlucometerNull()){
+                        mRecordsCount = GlucometerProxy.getInstance().getValuesCount();
                         glBeanList = new ArrayList<>();
                         for(int i =0;i<index_to;i++){
-                            glBeanList.add(getGlucometerRecord(i));
+                            glBeanList.add(GlucometerProxy.getInstance().getValueByIndex(i));
                         }
 
                         //DB sync
                         DB db = new DB(this);
                         for (GlBean bean: glBeanList) {
-                            Cursor c = db.execute("SELECT * FROM values_table WHERE serial_num='"+mGlucometerDevice.getSN()+"' AND gluc_value='"+bean.getGl_value()+"' AND value_date='"+bean.getDate()+"';");
+                            Cursor c = db.execute("SELECT * FROM values_table WHERE serial_num='"+GlucometerProxy.getInstance().getSerialNumber()+
+                                    "' AND gluc_value='"+bean.getGl_value()+"' AND value_date='"+bean.getDate()+"';");
                             if(c.moveToFirst()){//Нашли значение в БД, добавлять не нужно
                                 continue;
                             }
                             else{//Значения нет, добавляем
-                                db.addValueToGlValuesTable(mGlucometerDevice.getSN(),bean);
+                                db.addValueToGlValuesTable(GlucometerProxy.getInstance().getSerialNumber(),bean);
                             }
                         }
                         db.close();
@@ -111,37 +110,37 @@ public class GlIntentService extends IntentService {
         this.index_to = to;
     }
 
-    private String getGlucometerSN(){
-            if(mGlucometerDevice!=null) {
-                mGlucometerDevice.open();
-                String sn = mGlucometerDevice.getSN();
-                mGlucometerDevice.close();
-                return sn;
-            }
-        return null;
-    }
-
-    private GlBean getGlucometerRecord(int index){
-            if(mGlucometerDevice!=null) {
-                mGlucometerDevice.open();
-                GlBean bean;
-                bean = mGlucometerDevice.getRecord(index);
-                //Log.d("MainAct", "Str length: " + str.length);
-                //mMessage.setText("Data: " + str[0] + " Value: " + str[1]);
-                mGlucometerDevice.close();
-                return bean;
-            }
-        return null;
-    }
-
-    private int getGlucometerRecordCount(){
-            if (mGlucometerDevice != null) {
-                mGlucometerDevice.open();
-                int count = mGlucometerDevice.getRecordsCount();
-                mGlucometerDevice.close();
-                return count;
-            }
-        return -1;
-    }
+//    private String getGlucometerSN(){
+//            if(mGlucometerDevice!=null) {
+//                mGlucometerDevice.open();
+//                String sn = mGlucometerDevice.getSN();
+//                mGlucometerDevice.close();
+//                return sn;
+//            }
+//        return null;
+//    }
+//
+//    private GlBean getGlucometerRecord(int index){
+//            if(mGlucometerDevice!=null) {
+//                mGlucometerDevice.open();
+//                GlBean bean;
+//                bean = mGlucometerDevice.getRecord(index);
+//                //Log.d("MainAct", "Str length: " + str.length);
+//                //mMessage.setText("Data: " + str[0] + " Value: " + str[1]);
+//                mGlucometerDevice.close();
+//                return bean;
+//            }
+//        return null;
+//    }
+//
+//    private int getGlucometerRecordCount(){
+//            if (mGlucometerDevice != null) {
+//                mGlucometerDevice.open();
+//                int count = mGlucometerDevice.getRecordsCount();
+//                mGlucometerDevice.close();
+//                return count;
+//            }
+//        return -1;
+//    }
 
 }

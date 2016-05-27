@@ -16,6 +16,8 @@ import org.sandix.glucometer.beans.GlBean;
  * 4. close connection
  */
 public abstract class UsbGlucometerDevice {
+
+
     protected UsbDeviceConnection connection; //Can't be private, because it need for children classes access.
     protected UsbDevice device;
 
@@ -39,6 +41,11 @@ public abstract class UsbGlucometerDevice {
         return null;
     }
 
+    /*
+    * Первый вызов возможно будет долгим
+    * так как происходит запрос к глюкометру и заносится в переменную.
+    * Остальные вызовы возвращают значение переменной
+    * */
     public abstract String getSN();
     public abstract int getRecordsCount();
     public abstract boolean open();

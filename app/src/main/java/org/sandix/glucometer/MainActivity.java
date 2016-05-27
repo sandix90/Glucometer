@@ -40,6 +40,7 @@ import org.sandix.glucometer.beans.UserBean;
 import org.sandix.glucometer.db.DB;
 import org.sandix.glucometer.db.DBHelper;
 import org.sandix.glucometer.interfaces.AsyncTaskCompleteListener;
+import org.sandix.glucometer.models.GlucometerProxy;
 import org.sandix.glucometer.models.UsbGlucometerDevice;
 import org.sandix.glucometer.services.GlIntentService;
 import org.sandix.glucometer.synchronizers.SyncHelper;
@@ -250,8 +251,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void synchronize() {
 
+
         glDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice, mUsbDeviceConnection);
         glDevice.open();
+        GlucometerProxy.getInstance().setGlDevice(glDevice);
 
         DB db = new DB(this);
         db.open();
@@ -265,7 +268,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Intent intent = new Intent(MainActivity.this, EditClientForm.class);
                             intent.putExtra("serialNumber", glDevice.getSN());
                             startActivity(intent);
-                            synchronize();
                         }
                     }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                 @Override
@@ -277,11 +279,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         else{
 
-            GlIntentService intentService = new GlIntentService("glIntentService", this, glDevice);
+            //GlIntentService intentService = new GlIntentService("glIntentService", this, glDevice);
             Intent syncIntent = new Intent(this, GlIntentService.class);
             syncIntent.putExtra("type",GlIntentService.SYNC);
 
-            intentService.startService(syncIntent);
+            startService(syncIntent);
 
         }
     }

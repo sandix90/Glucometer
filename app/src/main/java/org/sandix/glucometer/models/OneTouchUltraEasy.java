@@ -14,7 +14,6 @@ import java.util.Arrays;
  */
 public class OneTouchUltraEasy extends UsbGlucometerDevice {
 
-
     private static final int PL2303_REQTYPE_HOST2DEVICE_VENDOR = 0x40;
     private static final int PL2303_REQTYPE_DEVICE2HOST_VENDOR = 0xC0;
     private static final int PL2303_REQTYPE_HOST2DEVICE = 0x21;
@@ -149,10 +148,6 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
 
 
         return true;
-    }
-
-    public void setSerialNumber(String sn){
-
     }
 
 
