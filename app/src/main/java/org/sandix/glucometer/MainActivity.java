@@ -3,6 +3,7 @@ package org.sandix.glucometer;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -65,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayoutManager llm;
     Toolbar toolbar;
 
+    ProgressDialog dialog;
+
     private static final String ACTION_USB_PERMISSION =
             "org.sandix.glucometer.USB_PERMISSION";
 
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onReceive(Context context, Intent intent) {
                         if(intent.hasExtra("sync_response")){
                             Toast.makeText(MainActivity.this, "Sync succeded", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
                         }
                     }
                 }, new IntentFilter(GlIntentService.ACTION_GLINTENTSERVICE));
@@ -284,6 +288,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             syncIntent.putExtra("type",GlIntentService.SYNC);
 
             startService(syncIntent);
+            dialog = new ProgressDialog(this);
+            dialog.setTitle("Пожалуйста подождите");
+            dialog.setMessage("Идет синхронизация данных глюкометра с базой данных...");
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
 
         }
     }

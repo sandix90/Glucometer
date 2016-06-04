@@ -41,6 +41,7 @@
             android:name=".ActivityChart"
             android:theme="@style/AppTheme.NoActionBar">
             </activity>
+        <service android:name=".services.GlIntentService"></service>
 
 
         <!--

@@ -38,8 +38,8 @@ public class GlIntentService extends IntentService {
     private List<GlBean> glBeanList;
 
 
-    public GlIntentService(String name, Context context, UsbGlucometerDevice device) {
-        super(name);
+    public GlIntentService() {
+        super("glIntentService");
 
     }
 
@@ -62,12 +62,13 @@ public class GlIntentService extends IntentService {
                     if(!GlucometerProxy.getInstance().isGlucometerNull()){
                         mRecordsCount = GlucometerProxy.getInstance().getValuesCount();
                         glBeanList = new ArrayList<>();
-                        for(int i =0;i<index_to;i++){
+                        for(int i =0;i<mRecordsCount;i++){
                             glBeanList.add(GlucometerProxy.getInstance().getValueByIndex(i));
                         }
 
                         //DB sync
                         DB db = new DB(this);
+                        db.open();
                         for (GlBean bean: glBeanList) {
                             Cursor c = db.execute("SELECT * FROM values_table WHERE serial_num='"+GlucometerProxy.getInstance().getSerialNumber()+
                                     "' AND gluc_value='"+bean.getGl_value()+"' AND value_date='"+bean.getDate()+"';");
