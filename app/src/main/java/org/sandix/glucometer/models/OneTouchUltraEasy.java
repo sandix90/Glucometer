@@ -8,6 +8,7 @@ import org.sandix.glucometer.tools;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.zip.CRC32;
 
 /**
  * Created by Alex on 03.04.2016.
@@ -44,7 +45,8 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
 
     private static byte[] recordsCountCmd = {0x02, 0x0A, 0x00, 0x05, 0x1F, (byte) 0xF5, 0x01, 0x03, 0x038, (byte) 0xAA};
     private static byte[] SNCmd = {0x02, 0x12, 0x00, 0x05, 0x0B, 0x02, 0x00, 0x00, 0x00, 0x00, (byte) 0x84, 0x6A, (byte) 0xE8, 0x73, 0x00, 0x03, (byte) 0x9B, (byte) 0xEA};
-    private byte[] readRecCmd = {0x02, 0x0A, 0x03, 0x05, 0x1F, 0x00, 0x00, 0x03, 0x4B, 0x5F}; //6,7 elements is number of record in glucometer. Need in bytes format
+    //private byte[] readRecCmd = {0x02, 0x0A, 0x03, 0x05, 0x1F, 0x02, 0x00, 0x03, 0x4B, 0x5F}; //6,7 elements is number of record in glucometer. Need in bytes format
+    private byte[] readRecCmd = {0x02, 0x0A, 0x03, 0x05, 0x1F, 0x02, 0x00, 0x03}; //6,7 elements is number of record in glucometer. Need in bytes format
 
 
     public OneTouchUltraEasy(UsbDevice device, UsbDeviceConnection connection) {
@@ -170,9 +172,18 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
 
     @Override
     public GlBean getRecord(int num) { //value index in glucometer
-        String[] str = new String[2];
         readRecCmd[5] = (byte)num;
-        write(readRecCmd);
+        String crc = tools.calculateCRC16(readRecCmd);
+        if(crc.length()<4){
+            crc = "0"+crc;
+        }
+        byte[] writeBuf = new byte[readRecCmd.length+2];
+        System.arraycopy(readRecCmd,0,writeBuf,0,readRecCmd.length);
+        writeBuf[8] = tools.hexStringToByteArray((String)crc.subSequence(2,4))[0];
+        writeBuf[9] = tools.hexStringToByteArray((String) crc.subSequence(0,2))[0];
+        write(writeBuf);
+
+
         byte [] buffer = new byte[64];
         int a = read(buffer);
         Log.d(LOG_TAG,"getRecord buffer answer: "+a);
@@ -192,6 +203,7 @@ public class OneTouchUltraEasy extends UsbGlucometerDevice {
         }
         return false;
     }
+
 
 
 }

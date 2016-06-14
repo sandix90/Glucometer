@@ -270,6 +270,7 @@
 
     </TableLayout>
     <LinearLayout
+        android:orientation="vertical"
         android:id="@+id/gl_values_ll"
         android:background="@drawable/frame"
         android:layout_width="match_parent"

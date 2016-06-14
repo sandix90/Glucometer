@@ -60,6 +60,7 @@ public class GlIntentService extends IntentService {
                 }
                 else if (intent.getIntExtra("type", -1)==SYNC){ //Синхронизируем
                     if(!GlucometerProxy.getInstance().isGlucometerNull()){
+                        // TODO: здесь может кол-во не придти из глюка
                         mRecordsCount = GlucometerProxy.getInstance().getValuesCount();
                         glBeanList = new ArrayList<>();
                         for(int i =0;i<mRecordsCount;i++){
@@ -70,8 +71,13 @@ public class GlIntentService extends IntentService {
                         DB db = new DB(this);
                         db.open();
                         for (GlBean bean: glBeanList) {
+                            if(bean==null){
+                                continue;
+                            }
+                            Double getValue = bean.getGl_value();
+                            String date = bean.getDate();
                             Cursor c = db.execute("SELECT * FROM values_table WHERE serial_num='"+GlucometerProxy.getInstance().getSerialNumber()+
-                                    "' AND gluc_value='"+bean.getGl_value()+"' AND value_date='"+bean.getDate()+"';");
+                                    "' AND gluc_value='"+getValue+"' AND value_date='"+date+"';");
                             if(c.moveToFirst()){//Нашли значение в БД, добавлять не нужно
                                 continue;
                             }
@@ -84,7 +90,7 @@ public class GlIntentService extends IntentService {
                         Intent syncIntentResponse = new Intent();
                         syncIntentResponse.setAction(ACTION_GLINTENTSERVICE);
                         syncIntentResponse.putExtra("sync_response",true);
-                        sendBroadcast(syncIntentResponse);
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(syncIntentResponse);
 
 
 //                        Bundle bundle = new Bundle();

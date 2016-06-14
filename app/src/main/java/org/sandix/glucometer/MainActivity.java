@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Список пациентов");
 
+        dialog = new ProgressDialog(this);
         getUsersInfo();
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 new BroadcastReceiver() {
@@ -288,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             syncIntent.putExtra("type",GlIntentService.SYNC);
 
             startService(syncIntent);
-            dialog = new ProgressDialog(this);
+
             dialog.setTitle("Пожалуйста подождите");
             dialog.setMessage("Идет синхронизация данных глюкометра с базой данных...");
             dialog.setCanceledOnTouchOutside(false);

@@ -130,9 +130,12 @@ public class DetailedInfoClientForm extends AppCompatActivity implements View.On
 
         //DB db = new DB(this);
         //db.getUserDataById(selectedUserBean.getId());
-        String query = "SELECT * FROM main WHERE serial_number='"+selectedUserBean.getSerial_number()+"' LIMIT 5 OFFSET (" +
-                "SELECT count(*) FROM main)-5 order by id DESC;";
+//        String query = "SELECT * FROM main WHERE serial_number='"+selectedUserBean.getSerial_number()+"' LIMIT 5 OFFSET (" +
+//                "SELECT count(id) FROM main )-5 order by id DESC;";
+        String query = "SELECT * FROM values_table WHERE serial_num='"+selectedUserBean.getSerial_number()+"' ORDER BY value_date LIMIT 5 ";
+
         AsyncDbExecutor executor = new AsyncDbExecutor(this,query);
+        executor.execute();
         executor.setOnTaskCompleteListener(new AsyncTaskCompleteListener() {
             @Override
             public void onTaskComplete(Object result, int request_type) {

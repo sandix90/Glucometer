@@ -103,4 +103,45 @@ public class tools {
         return sdf.format(date);
     }
 
+    public static String calculateCRC16(byte[] bytes){
+        int crc = 0xFFFF;          // initial value
+        int polynomial = 0x1021;   // 0001 0000 0010 0001  (0, 5, 12)
+
+
+        for (byte b : bytes) {
+            for (int i = 0; i < 8; i++) {
+                boolean bit = ((b   >> (7-i) & 1) == 1);
+                boolean c15 = ((crc >> 15    & 1) == 1);
+                crc <<= 1;
+                if (c15 ^ bit) crc ^= polynomial;
+            }
+        }
+
+        crc &= 0xffff; //Младший байт
+        return decimal2hex(crc);
+
+    }
+
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
+    }
+
+    public static String decimal2hex(int d) {
+        String digits = "0123456789ABCDEF";
+        if (d == 0) return "0";
+        String hex = "";
+        while (d > 0) {
+            int digit = d % 16; // rightmost digit
+            hex = digits.charAt(digit) + hex;  // string concatenation
+            d = d / 16;
+        }
+        return hex;
+    }
+
 }
