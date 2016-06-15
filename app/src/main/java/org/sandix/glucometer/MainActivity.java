@@ -258,6 +258,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         glDevice = UsbGlucometerDevice.initializeUsbDevice(mUsbDevice, mUsbDeviceConnection);
+        if(glDevice==null){
+            return;
+        }
         glDevice.open();
         GlucometerProxy.getInstance().setGlDevice(glDevice);
 

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <recources>
-    <usb-device vendor-id="1659" product-id="8963"/>
+    <usb-device vendor-id="1659" product-id="8963"/> <!--> OneTouch Ultra Easy<-->
+    <usb-device vendor-id="5946" producr-id="8454"/> <!--> AccuCheck Performa Nano<-->
 </recources>
